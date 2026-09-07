@@ -1,0 +1,43 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": {
+        "en": "Luxury Sofa",
+        "ru": "Элитный диван"
+      },
+      "category": "sofa",
+      "price": 899,
+      "rating": 5,
+      "inStock": true,
+      "description": {
+        "en": "Luxury velvet sofa premium class",
+        "ru": "Роскошный диван из велюра премиум-класса"
+      },
+      "image": "/assets/images/c1.jpg",
+      "isFavorite": false
+    },
+    {
+      "id": 2,
+      "name": {
+        "en": "Modern Sofa",
+        "ru": "Современный диван"
+      },
+      "category": "sofa",
+      "price": 650,
+      "rating": 4,
+      "inStock": true,
+      "description": {
+        "en": "Living room sofa in modern style",
+        "ru": "Диван для гостиной в современном стиле"
+      },
+      "image": "/assets/images/c2.jpg",
+      "isFavorite": false
+    }
+  ],
+  "favorites": [],
+  "cart": [],
+  "users": [],
+  "orders": [],
+  "feedback": []
+}
