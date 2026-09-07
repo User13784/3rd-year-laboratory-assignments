@@ -20,7 +20,10 @@ function ProductCard({ product }) {
           name: product.name,
           price: product.price,
           image: product.image,
-          category: product.category
+          category: product.category,
+          rating: product.rating || 5,
+          description: product.description || { en: '', ru: '' },
+          inStock: product.inStock !== undefined ? product.inStock : true
         });
         setIsFavorite(true);
         await api.updateProduct(product.id, { isFavorite: true });
@@ -39,48 +42,67 @@ function ProductCard({ product }) {
         image: product.image,
         quantity: 1
       });
-      alert(`${product.name.en} added to cart!`);
+      alert(`${getTranslatedName()} added to cart!`);
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
   };
 
+  // ===== ФУНКЦИИ С ПРОВЕРКАМИ =====
   const getTranslatedName = () => {
     const lang = localStorage.getItem('language') || 'en';
-    return product.name[lang] || product.name.en;
+    if (!product.name) return 'Product';
+    if (typeof product.name === 'string') return product.name;
+    return product.name[lang] || product.name.en || 'Product';
   };
 
   const getTranslatedDescription = () => {
     const lang = localStorage.getItem('language') || 'en';
-    return product.description[lang] || product.description.en;
+    if (!product.description) return '';
+    if (typeof product.description === 'string') return product.description;
+    return product.description[lang] || product.description.en || '';
   };
 
   const generateStars = (rating) => {
-    let stars = '';
+    const stars = rating || 5;
+    let result = '';
     for (let i = 0; i < 5; i++) {
-      stars += i < Math.floor(rating) ? '★' : '☆';
+      result += i < Math.floor(stars) ? '★' : '☆';
     }
-    return stars;
+    return result;
   };
+
+  // Проверка наличия товара
+  if (!product) {
+    return <div className="product-card-error">Product not found</div>;
+  }
 
   return (
     <article className="product-card">
       <div className="card-image">
-        <img src={product.image} alt={getTranslatedName()} />
+        <img 
+          src={product.image || '/assets/images/placeholder.jpg'} 
+          alt={getTranslatedName()} 
+          onError={(e) => { e.target.src = '/assets/images/placeholder.jpg'; }}
+        />
         <button className={`favorite-btn ${isFavorite ? 'active' : ''}`} onClick={toggleFavorite}>
           {isFavorite ? '❤️' : '🤍'}
         </button>
       </div>
       <div className="card-info">
         <h3 className="card-title">{getTranslatedName()}</h3>
-        <div className="card-category">{product.category}</div>
-        <div className="card-price">£{product.price.toFixed(2)}</div>
+        <div className="card-category">{product.category || 'General'}</div>
+        <div className="card-price">£{(product.price || 0).toFixed(2)}</div>
         <div className="card-rating">{generateStars(product.rating)}</div>
         <span className={`card-stock ${product.inStock ? 'in-stock' : 'out-stock'}`}>
           {product.inStock ? '✓ In stock' : '✗ Out of stock'}
         </span>
-        <p className="card-description">{getTranslatedDescription()?.substring(0, 60)}...</p>
-        <button className="add-to-cart-btn" onClick={addToCart} disabled={!product.inStock}>
+        <p className="card-description">{getTranslatedDescription().substring(0, 60)}...</p>
+        <button 
+          className="add-to-cart-btn" 
+          onClick={addToCart} 
+          disabled={!product.inStock}
+        >
           {product.inStock ? '🛒 Add to cart' : 'Out of stock'}
         </button>
       </div>

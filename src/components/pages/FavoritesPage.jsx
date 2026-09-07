@@ -13,7 +13,19 @@ function FavoritesPage() {
   const loadFavorites = async () => {
     try {
       const data = await api.getFavorites();
-      setFavorites(data);
+      // Преобразуем данные избранного в формат, совместимый с ProductCard
+      const formattedFavorites = data.map(item => ({
+        id: item.productId,
+        name: item.name || { en: 'Product', ru: 'Товар' },
+        price: item.price || 0,
+        image: item.image || '/assets/images/placeholder.jpg',
+        category: item.category || 'General',
+        rating: item.rating || 5,
+        inStock: item.inStock !== undefined ? item.inStock : true,
+        description: item.description || { en: '', ru: '' },
+        isFavorite: true
+      }));
+      setFavorites(formattedFavorites);
     } catch (error) {
       console.error('Error loading favorites:', error);
     }

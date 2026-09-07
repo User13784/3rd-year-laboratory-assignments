@@ -18,6 +18,32 @@ function App() {
       <div className="app-container">
         <Sidebar companyName={companyName} />
         <main className="main-content">
+          <header className="header-line">
+            <div className="nav-left">
+              <div className="nav-item-with-icon">
+                <img src="/assets/icons/human.png" alt="user" className="nav-icon" />
+                <a className="nav-item" href="/register">LOGIN</a>
+              </div>
+              <div className="nav-item-with-icon">
+                <img src="/assets/icons/door.png" alt="door" className="nav-icon" />
+                <a className="nav-item" href="/register">SIGN UP</a>
+              </div>
+            </div>
+            <div className="nav-right">
+              <div className="nav-item-with-icon">
+                <img src="/assets/icons/email.png" alt="email" className="nav-icon" />
+                <a className="nav-item" href="#">MAILING LIST</a>
+              </div>
+              <div className="nav-item-with-icon">
+                <img src="/assets/icons/symbol.png" alt="share" className="nav-icon" />
+                <a className="nav-item" href="#">SHARE</a>
+              </div>
+              <div className="nav-item-with-icon">
+                <img src="/assets/icons/cart.png" alt="cart" className="nav-icon" />
+                <a className="nav-item" href="/cart">CART</a>
+              </div>
+            </div>
+          </header>
           <Routes>
             <Route path="/" element={<HomePage title={mainTitle} />} />
             <Route path="/catalog" element={<CatalogPage />} />
