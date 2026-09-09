@@ -7,6 +7,7 @@ import CartPage from './components/pages/CartPage';
 import FavoritesPage from './components/pages/FavoritesPage';
 import FeedbackPage from './components/pages/FeedbackPage';
 import AdminPage from './components/pages/AdminPage';
+import RegisterPage from './components/pages/RegisterPage';
 import './App.css';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/feedback" element={<FeedbackPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </main>
       </div>

@@ -22,12 +22,10 @@ export function initMobileMenu() {
   burger.addEventListener('click', toggleMenu);
   overlay.addEventListener('click', closeMenu);
 
-  // Закрываем меню при клике на ссылку
   mobileMenu.querySelectorAll('.menu-item').forEach(link => {
     link.addEventListener('click', closeMenu);
   });
 
-  // Закрываем при нажатии Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMenu();
   });

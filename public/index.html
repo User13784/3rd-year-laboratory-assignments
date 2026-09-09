@@ -16,17 +16,14 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
-    <!-- ===== БУРГЕР-МЕНЮ (кнопка) ===== -->
     <button class="burger-menu" id="burgerMenu" aria-label="Меню">
       <span class="burger-line"></span>
       <span class="burger-line"></span>
       <span class="burger-line"></span>
     </button>
 
-    <!-- ===== ЗАТЕМНЕНИЕ ===== -->
     <div class="mobile-menu-overlay" id="mobileOverlay"></div>
 
-    <!-- ===== МОБИЛЬНОЕ МЕНЮ ===== -->
     <nav class="mobile-menu" id="mobileMenu">
       <div class="logo-container">
         <img src="/assets/icons/logo.png" alt="Greenery" />
@@ -56,13 +53,8 @@
         <span>Cart</span>
       </a>
 
-      <!--
-        УДАЛЯЕМ СЕКЦИЮ "ACCOUNT" С LOGIN И SIGN UP,
-        ПОТОМУ ЧТО ОНИ УЖЕ ЕСТЬ В ВЕРХНЕЙ ПАНЕЛИ
-      -->
     </nav>
 
-    <!-- ===== КОРНЕВОЙ ЭЛЕМЕНТ REACT ===== -->
     <div id="root"></div>
 
   </body>

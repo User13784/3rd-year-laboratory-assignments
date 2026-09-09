@@ -48,7 +48,6 @@ function ProductCard({ product }) {
     }
   };
 
-  // ===== ФУНКЦИИ С ПРОВЕРКАМИ =====
   const getTranslatedName = () => {
     const lang = localStorage.getItem('language') || 'en';
     if (!product.name) return 'Product';
@@ -72,7 +71,6 @@ function ProductCard({ product }) {
     return result;
   };
 
-  // Проверка наличия товара
   if (!product) {
     return <div className="product-card-error">Product not found</div>;
   }

@@ -13,7 +13,6 @@ function FavoritesPage() {
   const loadFavorites = async () => {
     try {
       const data = await api.getFavorites();
-      // Преобразуем данные избранного в формат, совместимый с ProductCard
       const formattedFavorites = data.map(item => ({
         id: item.productId,
         name: item.name || { en: 'Product', ru: 'Товар' },
