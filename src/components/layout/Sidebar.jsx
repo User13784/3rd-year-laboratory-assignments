@@ -1,13 +1,16 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 function Sidebar({ companyName = "Greenery" }) {
+  const { t } = useLanguage();
+
   const menuItems = [
-    { path: '/', icon: 'home', label: 'Home' },
-    { path: '/catalog', icon: 'shop', label: 'Shop' },
-    { path: '/favorites', icon: 'heart', label: 'Favorites' },
-    { path: '/feedback', icon: 'blog', label: 'Reviews' },
-    { path: '/cart', icon: 'cart', label: 'Cart' },
+    { path: '/', icon: 'home', label: t('home') },
+    { path: '/catalog', icon: 'shop', label: t('shop') },
+    { path: '/favorites', icon: 'heart', label: t('favorites') },
+    { path: '/feedback', icon: 'blog', label: t('reviews') },
+    { path: '/cart', icon: 'cart', label: t('cart') },
   ];
 
   return (

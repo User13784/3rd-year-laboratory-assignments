@@ -15,7 +15,7 @@
         "ru": "Роскошный диван из велюра премиум-класса с высокой спинкой и мягкими подлокотниками. Идеален для современных гостиных."
       },
       "image": "/assets/images/c1.jpg",
-      "isFavorite": false
+      "isFavorite": true
     },
     {
       "id": "2",
@@ -256,7 +256,25 @@
       "isFavorite": false
     }
   ],
-  "favorites": [],
+  "favorites": [
+    {
+      "productId": "1",
+      "name": {
+        "en": "Luxury Velvet Sofa",
+        "ru": "Роскошный велюровый диван"
+      },
+      "price": 899,
+      "image": "/assets/images/c1.jpg",
+      "category": "sofa",
+      "rating": 5,
+      "description": {
+        "en": "Premium luxury velvet sofa with high back and soft armrests. Perfect for modern living rooms.",
+        "ru": "Роскошный диван из велюра премиум-класса с высокой спинкой и мягкими подлокотниками. Идеален для современных гостиных."
+      },
+      "inStock": true,
+      "id": "LFzHktLlIbU"
+    }
+  ],
   "cart": [
     {
       "productId": "1",
@@ -268,6 +286,17 @@
       "image": "/assets/images/c1.jpg",
       "quantity": 1,
       "id": "KqSAMG1hAjc"
+    },
+    {
+      "productId": "4",
+      "name": {
+        "en": "Coffee Table",
+        "ru": "Журнальный столик"
+      },
+      "price": 250,
+      "image": "/assets/images/c4.jpg",
+      "quantity": 1,
+      "id": "ZSivMnszGHg"
     }
   ],
   "users": [
@@ -278,6 +307,14 @@
       "firstName": "Admin",
       "lastName": "User",
       "role": "admin"
+    },
+    {
+      "id": "2",
+      "email": "user@example.com",
+      "password": "user123",
+      "firstName": "Иван",
+      "lastName": "Петров",
+      "role": "user"
     }
   ],
   "orders": [],

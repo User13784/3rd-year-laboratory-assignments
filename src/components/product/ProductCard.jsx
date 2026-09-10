@@ -1,10 +1,33 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 function ProductCard({ product }) {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);
 
-  const toggleFavorite = async () => {
+  // ===== ПРОВЕРКА АВТОРИЗАЦИИ =====
+  const requireAuth = (actionName) => {
+    if (!isAuthenticated) {
+      const goToLogin = window.confirm(
+        `🔒 Для "${actionName}" необходимо войти в аккаунт.\n\nПерейти на страницу входа?`
+      );
+      if (goToLogin) {
+        navigate('/register');
+      }
+      return false;
+    }
+    return true;
+  };
+
+  // ===== ИЗБРАННОЕ =====
+  const toggleFavorite = async (e) => {
+    e.stopPropagation();
+
+    if (!requireAuth('добавления в избранное')) return;
+
     try {
       if (isFavorite) {
         const favorites = await api.getFavorites();
@@ -33,7 +56,12 @@ function ProductCard({ product }) {
     }
   };
 
-  const addToCart = async () => {
+  // ===== КОРЗИНА =====
+  const addToCart = async (e) => {
+    e.stopPropagation();
+
+    if (!requireAuth('добавления в корзину')) return;
+
     try {
       await api.addToCart({
         productId: product.id,
@@ -42,12 +70,14 @@ function ProductCard({ product }) {
         image: product.image,
         quantity: 1
       });
-      alert(`${getTranslatedName()} added to cart!`);
+      alert(`✅ "${getTranslatedName()}" добавлен в корзину!`);
     } catch (error) {
       console.error('Error adding to cart:', error);
+      alert('❌ Ошибка добавления в корзину');
     }
   };
 
+  // ===== ПЕРЕВОДЫ =====
   const getTranslatedName = () => {
     const lang = localStorage.getItem('language') || 'en';
     if (!product.name) return 'Product';
@@ -83,7 +113,11 @@ function ProductCard({ product }) {
           alt={getTranslatedName()} 
           onError={(e) => { e.target.src = '/assets/images/placeholder.jpg'; }}
         />
-        <button className={`favorite-btn ${isFavorite ? 'active' : ''}`} onClick={toggleFavorite}>
+        <button 
+          className={`favorite-btn ${isFavorite ? 'active' : ''}`} 
+          onClick={toggleFavorite}
+          title={isAuthenticated ? 'Добавить в избранное' : 'Войдите, чтобы добавить в избранное'}
+        >
           {isFavorite ? '❤️' : '🤍'}
         </button>
       </div>
@@ -100,6 +134,7 @@ function ProductCard({ product }) {
           className="add-to-cart-btn" 
           onClick={addToCart} 
           disabled={!product.inStock}
+          title={isAuthenticated ? 'Добавить в корзину' : 'Войдите, чтобы добавить в корзину'}
         >
           {product.inStock ? '🛒 Add to cart' : 'Out of stock'}
         </button>
