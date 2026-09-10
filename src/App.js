@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/layout/Sidebar';
 import Footer from './components/layout/Footer';
 import HomePage from './components/pages/HomePage';
@@ -18,6 +19,7 @@ import './App.css';
 function Header() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { lang, toggleLanguage, t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     if (window.confirm(t('logoutConfirm'))) {
@@ -76,6 +78,15 @@ function Header() {
         >
           {lang === 'ru' ? '🇬🇧 EN' : '🇷🇺 RU'}
         </button>
+
+        {/* ===== КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ===== */}
+        <button
+          className="theme-toggle"
+          onClick={toggleTheme}
+          title={isDark ? 'Светлая тема' : 'Тёмная тема'}
+        >
+          {isDark ? '☀️' : '🌙'}
+        </button>
       </div>
     </header>
   );
@@ -87,29 +98,31 @@ function App() {
   const mainTitle = "Best Furniture For Your Interior";
 
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Router>
-          <div className="app-container">
-            <Sidebar companyName={companyName} />
-            <main className="main-content">
-              <Header />
-              <Routes>
-                <Route path="/" element={<HomePage title={mainTitle} />} />
-                <Route path="/catalog" element={<CatalogPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/favorites" element={<FavoritesPage />} />
-                <Route path="/feedback" element={<FeedbackPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-              <Footer />
-            </main>
-          </div>
-        </Router>
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
+            <div className="app-container">
+              <Sidebar companyName={companyName} />
+              <main className="main-content">
+                <Header />
+                <Routes>
+                  <Route path="/" element={<HomePage title={mainTitle} />} />
+                  <Route path="/catalog" element={<CatalogPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/favorites" element={<FavoritesPage />} />
+                  <Route path="/feedback" element={<FeedbackPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+                <Footer />
+              </main>
+            </div>
+          </Router>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

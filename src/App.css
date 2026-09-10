@@ -4093,3 +4093,345 @@ img {
   background: #555555;
   border-color: #555555;
 }
+
+/* ===== КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ===== */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: #71B3C6;
+  border-color: #71B3C6;
+  transform: translateY(-2px) rotate(15deg);
+  box-shadow: 0 4px 15px rgba(113, 179, 198, 0.4);
+}
+
+.theme-toggle:active {
+  transform: translateY(0) rotate(0deg);
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 768px) {
+  .theme-toggle {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-toggle {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+}
+
+/* ===== ТЁМНАЯ ТЕМА ===== */
+.dark-theme .theme-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-theme .theme-toggle:hover {
+  background: #555555;
+  border-color: #555555;
+}
+
+/* ============================================
+   ТЁМНАЯ ТЕМА — ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================ */
+
+body.dark-theme {
+  background: #1a1a1a;
+  color: #e8e8e8;
+}
+
+/* Основной контент */
+.dark-theme .main-content {
+  background: #1a1a1a;
+}
+
+/* Шапка */
+.dark-theme .header-line {
+  background: rgba(0, 0, 0, 0.75);
+  border-color: rgba(113, 179, 198, 0.15);
+}
+
+/* Сайдбар */
+.dark-theme .sidebar {
+  background: #0a0a0a;
+}
+
+.dark-theme .menu-item span {
+  color: #c8c8c8;
+}
+
+.dark-theme .menu-item:hover {
+  color: white;
+}
+
+.dark-theme .menu-item.active {
+  color: #B6DCFF;
+}
+
+/* Карточки каталога */
+.dark-theme .product-card {
+  background: #2d2d2d;
+  border-color: #1a1a1a;
+}
+
+.dark-theme .card-title {
+  color: #e8e8e8;
+}
+
+.dark-theme .card-category {
+  color: #888888;
+}
+
+.dark-theme .card-price {
+  color: #e8e8e8;
+}
+
+.dark-theme .card-description {
+  color: #aaaaaa;
+}
+
+.dark-theme .card-stock.in-stock {
+  background: #224422;
+  color: #6bff6b;
+}
+
+.dark-theme .card-stock.out-stock {
+  background: #442222;
+  color: #ff6b6b;
+}
+
+/* Панель управления каталога */
+.dark-theme .control-panel {
+  background: #2a2a2a;
+}
+
+.dark-theme .search-input {
+  background: #3a3a3a;
+  border-color: #444444;
+  color: #e8e8e8;
+}
+
+.dark-theme .search-input:focus {
+  border-color: #888888;
+}
+
+.dark-theme .category-btn {
+  border-color: #666666;
+  color: #cccccc;
+}
+
+.dark-theme .category-btn.active {
+  background: #555555;
+  color: white;
+  border-color: #555555;
+}
+
+.dark-theme .category-btn:hover {
+  background: #555555;
+  color: white;
+}
+
+.dark-theme .select-all-btn {
+  color: #e8e8e8;
+  border-color: #888888;
+}
+
+.dark-theme .select-all-btn:hover {
+  background: #555555;
+  border-color: #555555;
+}
+
+/* Каталог, корзина */
+.dark-theme .catalog-header h1,
+.dark-theme .cart-header h1 {
+  color: #e8e8e8;
+}
+
+.dark-theme .catalog-header p,
+.dark-theme .cart-header p {
+  color: #aaaaaa;
+}
+
+/* Модальные окна */
+.dark-theme .modal-content {
+  background: #2a2a2a;
+}
+
+.dark-theme .modal-header {
+  border-bottom-color: #444444;
+}
+
+.dark-theme .modal-header h2 {
+  color: #e8e8e8;
+}
+
+.dark-theme .modal-close {
+  color: #aaaaaa;
+}
+
+.dark-theme .modal-close:hover {
+  color: #ff6b6b;
+}
+
+/* Формы */
+.dark-theme .form-group label {
+  color: #cccccc;
+}
+
+.dark-theme .form-group input,
+.dark-theme .form-group select,
+.dark-theme .form-group textarea {
+  background: #333333;
+  border-color: #444444;
+  color: #e8e8e8;
+}
+
+.dark-theme .form-group input:focus,
+.dark-theme .form-group select:focus,
+.dark-theme .form-group textarea:focus {
+  border-color: #888888;
+}
+
+/* Footer */
+.dark-theme .footer {
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+}
+
+/* Home Page */
+.dark-theme .counters-section {
+  background: #222222;
+}
+
+.dark-theme .counter-item {
+  background: #2a2a2a;
+}
+
+.dark-theme .counter-number {
+  color: #e8e8e8;
+}
+
+.dark-theme .counter-label {
+  color: #aaaaaa;
+}
+
+.dark-theme .header2-text h1 {
+  color: #e8e8e8;
+}
+
+.dark-theme .menu-text span {
+  color: #aaaaaa;
+}
+
+.dark-theme .picture1, .dark-theme .picture2, .dark-theme .picture3,
+.dark-theme .picture4, .dark-theme .picture5, .dark-theme .picture6 {
+  background: #2d2d2d;
+  border-color: #1a1a1a;
+}
+
+.dark-theme .product-title,
+.dark-theme .product-price {
+  color: #e8e8e8;
+}
+
+.dark-theme .video-promo-section {
+  background: #1e1e1e;
+}
+
+.dark-theme .media-gallery {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+}
+
+.dark-theme .photo-gallery-section {
+  background: #222222;
+}
+
+.dark-theme .photo-card {
+  background: #2a2a2a;
+}
+
+.dark-theme .photo-card-info h3 {
+  color: #e8e8e8;
+}
+
+/* Авторизация */
+.dark-theme .auth-container {
+  background: #2a2a2a;
+}
+
+.dark-theme .auth-tabs {
+  background: #222222;
+  border-bottom-color: #444444;
+}
+
+.dark-theme .tab-btn {
+  color: #888888;
+}
+
+.dark-theme .tab-btn.active {
+  color: #e8e8e8;
+  background: #2a2a2a;
+}
+
+/* 404 */
+.dark-theme .not-found-title {
+  color: #e8e8e8;
+}
+
+.dark-theme .not-found-text {
+  color: #aaaaaa;
+}
+
+/* Корзина */
+.dark-theme .cart-table {
+  background: #2a2a2a;
+}
+
+.dark-theme .cart-header-row {
+  background: #3a3a3a;
+}
+
+.dark-theme .cart-item {
+  border-bottom-color: #444444;
+}
+
+.dark-theme .cart-summary {
+  background: #2a2a2a;
+}
+
+.dark-theme .cart-total {
+  color: #e8e8e8;
+}
+
+/* Плавный переход при смене темы */
+body,
+.main-content,
+.product-card,
+.header-line,
+.sidebar,
+.control-panel,
+.modal-content,
+.footer,
+.counters-section,
+.counter-item {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
