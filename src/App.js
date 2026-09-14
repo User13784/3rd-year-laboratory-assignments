@@ -15,7 +15,6 @@ import RegisterPage from './components/pages/RegisterPage';
 import NotFoundPage from './components/pages/NotFoundPage';
 import './App.css';
 
-// ===== ШАПКА =====
 function Header() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { lang, toggleLanguage, t } = useLanguage();
@@ -70,7 +69,6 @@ function Header() {
           <Link className="nav-item" to="/cart">{t('cart')}</Link>
         </div>
 
-        {/* ===== КНОПКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА ===== */}
         <button
           className="language-toggle"
           onClick={toggleLanguage}
@@ -79,7 +77,6 @@ function Header() {
           {lang === 'ru' ? '🇬🇧 EN' : '🇷🇺 RU'}
         </button>
 
-        {/* ===== КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ===== */}
         <button
           className="theme-toggle"
           onClick={toggleTheme}
@@ -92,7 +89,6 @@ function Header() {
   );
 }
 
-// ===== ГЛАВНЫЙ КОМПОНЕНТ =====
 function App() {
   const companyName = "Greenery";
   const mainTitle = "Best Furniture For Your Interior";

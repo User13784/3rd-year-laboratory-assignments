@@ -8,7 +8,6 @@ function RegisterPage() {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
 
-  // ===== СОСТОЯНИЯ ФОРМЫ ВХОДА =====
   const [loginData, setLoginData] = useState({
     email: '',
     password: ''
@@ -16,7 +15,6 @@ function RegisterPage() {
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
-  // ===== СОСТОЯНИЯ ФОРМЫ РЕГИСТРАЦИИ =====
   const [registerData, setRegisterData] = useState({
     firstName: '',
     lastName: '',
@@ -26,7 +24,6 @@ function RegisterPage() {
   const [registerError, setRegisterError] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
 
-  // ===== ОБРАБОТЧИКИ ИЗМЕНЕНИЙ =====
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
@@ -39,9 +36,8 @@ function RegisterPage() {
     setRegisterError('');
   };
 
-  // ===== ВХОД =====
   const handleLogin = async (e) => {
-    e.preventDefault(); // ← ВАЖНО! Предотвращает перезагрузку страницы
+    e.preventDefault(); 
 
     setLoginError('');
 
@@ -67,10 +63,8 @@ function RegisterPage() {
         return;
       }
 
-      // Сохраняем пользователя
       login(user);
 
-      // Перенаправляем в зависимости от роли
       if (user.role === 'admin') {
         navigate('/catalog');
         alert(`👑 Добро пожаловать, администратор ${user.firstName}!`);
@@ -86,7 +80,6 @@ function RegisterPage() {
     setLoginLoading(false);
   };
 
-  // ===== РЕГИСТРАЦИЯ =====
   const handleRegister = async (e) => {
     e.preventDefault();
 
@@ -106,7 +99,6 @@ function RegisterPage() {
     setRegisterLoading(true);
 
     try {
-      // Проверяем, есть ли уже такой email
       const existing = await api.loginUser(registerData.email);
       if (existing) {
         setRegisterError('Пользователь с таким email уже существует');
@@ -114,7 +106,6 @@ function RegisterPage() {
         return;
       }
 
-      // Создаём пользователя
       const newUser = {
         id: Date.now().toString(),
         email: registerData.email,
@@ -127,7 +118,6 @@ function RegisterPage() {
 
       const created = await api.registerUser(newUser);
 
-      // Автоматически входим
       login(created);
       alert(`✅ Регистрация успешна! Добро пожаловать, ${created.firstName}!`);
       navigate('/catalog');
@@ -139,7 +129,6 @@ function RegisterPage() {
     setRegisterLoading(false);
   };
 
-  // ===== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК =====
   const switchToLogin = () => {
     setIsLogin(true);
     setLoginError('');
@@ -160,7 +149,6 @@ function RegisterPage() {
       </div>
 
       <div className="auth-container">
-        {/* ===== ВКЛАДКИ ===== */}
         <div className="auth-tabs">
           <button
             type="button"
@@ -178,7 +166,6 @@ function RegisterPage() {
           </button>
         </div>
 
-        {/* ===== ФОРМА ВХОДА ===== */}
         {isLogin ? (
           <form className="auth-form" onSubmit={handleLogin}>
             {loginError && (
@@ -222,7 +209,6 @@ function RegisterPage() {
             </p>
           </form>
         ) : (
-          /* ===== ФОРМА РЕГИСТРАЦИИ ===== */
           <form className="auth-form" onSubmit={handleRegister}>
             {registerError && (
               <div className="auth-error">{registerError}</div>

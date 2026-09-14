@@ -59,7 +59,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
             {product.inStock ? '✓ In stock' : '✗ Out of stock'}
           </span>
 
-          {/* Предупреждение для гостей */}
           {!isAuthenticated && (
             <div className="modal-auth-warning">
               ℹ️ <a href="/register">Войдите в аккаунт</a>, чтобы добавить в корзину

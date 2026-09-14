@@ -8,7 +8,6 @@ function ProductCard({ product }) {
   const { isAuthenticated } = useAuth();
   const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);
 
-  // ===== ПРОВЕРКА АВТОРИЗАЦИИ =====
   const requireAuth = (actionName) => {
     if (!isAuthenticated) {
       const goToLogin = window.confirm(
@@ -22,7 +21,6 @@ function ProductCard({ product }) {
     return true;
   };
 
-  // ===== ИЗБРАННОЕ =====
   const toggleFavorite = async (e) => {
     e.stopPropagation();
 
@@ -56,7 +54,6 @@ function ProductCard({ product }) {
     }
   };
 
-  // ===== КОРЗИНА =====
   const addToCart = async (e) => {
     e.stopPropagation();
 
@@ -77,7 +74,6 @@ function ProductCard({ product }) {
     }
   };
 
-  // ===== ПЕРЕВОДЫ =====
   const getTranslatedName = () => {
     const lang = localStorage.getItem('language') || 'en';
     if (!product.name) return 'Product';

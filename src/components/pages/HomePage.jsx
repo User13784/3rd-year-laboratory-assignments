@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 function HomePage({ title = "Best Furniture For Your Interior" }) {
-  // ===== СЧЁТЧИКИ =====
   const [counters, setCounters] = useState({
     clients: 0,
     sold: 0,
@@ -9,14 +8,11 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     experience: 0
   });
 
-  // ===== СЛАЙДЕР В HERO =====
   const [activeSlide, setActiveSlide] = useState(1);
   const totalSlides = 3;
 
-  // ===== КАТЕГОРИИ ТОВАРОВ =====
   const [activeCategory, setActiveCategory] = useState('sofa');
 
-  // ===== МЕДИАГАЛЕРЕЯ =====
   const [galleryIndex, setGalleryIndex] = useState(0);
   const galleryImages = [
     { src: '/assets/images/c1.jpg', name: 'Элитный диван' },
@@ -28,7 +24,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
   ];
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
-  // ===== ФОТО-ГАЛЕРЕЯ =====
   const allPhotos = [
     { src: '/assets/images/c1.jpg', name: 'Элитный диван', category: 'Диваны' },
     { src: '/assets/images/c2.jpg', name: 'Современный диван', category: 'Диваны' },
@@ -51,7 +46,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
   );
   const totalPhotoPages = Math.ceil(allPhotos.length / photosPerPage);
 
-  // ===== АНИМАЦИЯ СЧЁТЧИКОВ =====
   useEffect(() => {
     const targets = { clients: 5000, sold: 1200, awards: 150, experience: 24 };
     const duration = 2000;
@@ -77,7 +71,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     return () => clearInterval(timer);
   }, []);
 
-  // ===== АВТОПЕРЕКЛЮЧЕНИЕ СЛАЙДОВ =====
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveSlide(prev => (prev + 1) % totalSlides);
@@ -85,7 +78,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     return () => clearInterval(timer);
   }, [totalSlides]);
 
-  // ===== МЕДИАГАЛЕРЕЯ: функции =====
   const nextImage = () => {
     setGalleryIndex(prev => (prev + 1) % galleryImages.length);
   };
@@ -106,7 +98,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     setIsAudioPlaying(prev => !prev);
   };
 
-  // ===== ФОТО-ГАЛЕРЕЯ: функции =====
   const nextPhotoPage = () => {
     if (photoPage < totalPhotoPages - 1) setPhotoPage(prev => prev + 1);
   };
@@ -115,7 +106,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     if (photoPage > 0) setPhotoPage(prev => prev - 1);
   };
 
-  // ===== КАТЕГОРИИ ТОВАРОВ =====
   const categories = [
     { key: 'sofa', label: 'Single Sofa' },
     { key: 'living', label: 'Living Room' },
@@ -129,7 +119,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
   return (
     <div className="home-page-wrapper">
 
-      {/* ===== HERO SECTION ===== */}
       <section className="home-hero">
         <div className="hero-content">
           <p className="hero-small">Save The Weekend</p>
@@ -139,7 +128,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
           <a href="/catalog" className="hero-button">Explore More</a>
         </div>
 
-        {/* Точки слайдера — кликабельны */}
         <div className="slider-dots">
           {[0, 1, 2].map(i => (
             <span
@@ -153,7 +141,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== ГАЛЕРЕЯ БРЕНДОВ ===== */}
       <section className="gallery-block">
         <div className="gallery-inner">
           {[1, 2, 3, 4, 5, 6].map(num => (
@@ -167,7 +154,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== СЧЁТЧИКИ ===== */}
       <section className="counters-section">
         <div className="counters-container">
           <div className="counter-item">
@@ -189,13 +175,11 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== НАШИ ТОВАРЫ ===== */}
       <section className="products-section">
         <div className="header2-text">
           <h1>Our Products</h1>
         </div>
 
-        {/* Кнопки категорий — кликабельны */}
         <nav className="menu-text">
           {categories.map(cat => (
             <div
@@ -255,7 +239,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== PARALLAX ===== */}
       <section className="parallax-section">
         <div className="parallax-layer layer-1"></div>
         <div className="parallax-layer layer-2"></div>
@@ -266,7 +249,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== ВИДЕО ===== */}
       <section className="video-promo-section">
         <div className="video-promo-container">
           <h2 className="video-promo-title">🎬 Видео-презентация</h2>
@@ -289,7 +271,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== МЕДИАГАЛЕРЕЯ ===== */}
       <section className="media-gallery">
         <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>🎵 Медиагалерея</h2>
         <p style={{ textAlign: 'center', marginBottom: '30px' }}>
@@ -320,7 +301,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
             </button>
           </div>
 
-          {/* Аудио-кнопка */}
           <div className="gallery-audio" style={{ display: 'flex', justifyContent: 'center', gap: '15px', margin: '15px 0' }}>
             <button
               className="audio-play-btn"
@@ -339,7 +319,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
             </button>
           </div>
 
-          {/* Превью */}
           <div className="gallery-thumbnails">
             {galleryImages.map((img, idx) => (
               <img
@@ -355,7 +334,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== ФОТО-ГАЛЕРЕЯ ===== */}
       <section className="photo-gallery-section">
         <div className="photo-gallery-container">
           <h2 className="photo-gallery-title">📷 Галерея товаров</h2>
@@ -400,7 +378,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== ПРОМО 50% OFF ===== */}
       <section className="image-container">
         <img src="/assets/images/bg2.jpg" alt="Background" />
         <div className="text-overlay">
@@ -413,7 +390,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== LIVING ROOM ===== */}
       <section className="image-container2">
         <img src="/assets/images/bg3.jpg" alt="Living Room" />
         <div className="content">
@@ -428,7 +404,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== DINING TABLE ===== */}
       <section className="image-container3">
         <img src="/assets/images/bg4.jpg" alt="Dining Table" />
         <div className="content2">
@@ -440,7 +415,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== MODERN BED ===== */}
       <section className="image-container4">
         <img src="/assets/images/bg5.jpg" alt="Modern Bed" />
         <div className="content3">
@@ -452,7 +426,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== KITCHEN ===== */}
       <section className="image-container5">
         <img src="/assets/images/bg6.jpg" alt="Kitchen" />
         <div className="content4">
@@ -464,7 +437,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </div>
       </section>
 
-      {/* ===== КАРТА ===== */}
       <section className="map-section">
         <div className="map-container">
           <div id="map" style={{

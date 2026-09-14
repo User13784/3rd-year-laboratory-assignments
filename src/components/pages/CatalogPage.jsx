@@ -12,7 +12,6 @@ function CatalogPage() {
   const { isAuthenticated, isAdmin } = useAuth();
   const { t } = useLanguage();
 
-  // ===== СОСТОЯНИЯ =====
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

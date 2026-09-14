@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 
 function Modal({ isOpen, onClose, children, title }) {
-  // Закрытие по Escape
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();

@@ -1,7 +1,6 @@
 const API_URL = 'http://localhost:3001';
 
 export const api = {
-  // ===== ТОВАРЫ =====
   async getProducts() {
     const response = await fetch(`${API_URL}/products`);
     return response.json();
@@ -37,7 +36,6 @@ export const api = {
     return response.ok;
   },
 
-  // ===== КОРЗИНА =====
   async getCart() {
     const response = await fetch(`${API_URL}/cart`);
     return response.json();
@@ -68,7 +66,6 @@ export const api = {
     return response.ok;
   },
 
-  // ===== ИЗБРАННОЕ =====
   async getFavorites() {
     const response = await fetch(`${API_URL}/favorites`);
     return response.json();
@@ -90,7 +87,6 @@ export const api = {
     return response.ok;
   },
 
-  // ===== ПОЛЬЗОВАТЕЛИ =====
   async getUsers() {
     const response = await fetch(`${API_URL}/users`);
     return response.json();
@@ -111,7 +107,6 @@ export const api = {
     return users[0] || null;
   },
 
-  // ===== ОТЗЫВЫ =====
   async getFeedback() {
     const response = await fetch(`${API_URL}/feedback`);
     return response.json();
