@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Alert, Button, Spinner } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import ProductCard from '../product/ProductCard';
 
@@ -26,35 +28,50 @@ function FavoritesPage() {
       }));
       setFavorites(formattedFavorites);
     } catch (error) {
-      console.error('Error loading favorites:', error);
+      console.error('Error:', error);
     }
     setLoading(false);
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="danger" />
+        <p className="mt-3">Загрузка избранного...</p>
+      </Container>
+    );
+  }
 
   if (favorites.length === 0) {
     return (
-      <div className="empty-favorites">
-        <h2>😔 Favorites is empty</h2>
-        <p>Add items to favorites to see them here</p>
-        <a href="/catalog" className="back-link">Go to catalog</a>
-      </div>
+      <Container className="text-center py-5">
+        <Alert variant="info">
+          <h2>😔 Favorites is empty</h2>
+          <p>Add items to favorites to see them here</p>
+        </Alert>
+        <Button as={Link} to="/catalog" variant="primary" size="lg">
+          🛍️ Go to catalog
+        </Button>
+      </Container>
     );
   }
 
   return (
-    <div className="favorites-page">
-      <div className="catalog-header">
-        <h1>❤️ Favorites</h1>
-        <p>Your favorite items</p>
+    <Container className="py-4">
+      <div className="text-center mb-4">
+        <h1 className="display-5">❤️ Favorites</h1>
+        <p className="text-muted">Your favorite items</p>
+        <Badge bg="danger">{favorites.length} items</Badge>
       </div>
-      <div className="catalog-container">
+
+      <Row xs={1} sm={2} md={3} lg={4} className="g-4">
         {favorites.map(item => (
-          <ProductCard key={item.id} product={item} />
+          <Col key={item.id}>
+            <ProductCard product={item} />
+          </Col>
         ))}
-      </div>
-    </div>
+      </Row>
+    </Container>
   );
 }
 
