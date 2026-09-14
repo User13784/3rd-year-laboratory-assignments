@@ -1,29 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Container, Card, Form, Button, Alert, Tab, Tabs } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 
 function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const [key, setKey] = useState('login');   // 'login' или 'register'
 
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: ''
-  });
+  // ===== ФОРМА ВХОДА =====
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
+  // ===== ФОРМА РЕГИСТРАЦИИ =====
   const [registerData, setRegisterData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: ''
+    firstName: '', lastName: '', email: '', password: ''
   });
   const [registerError, setRegisterError] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
 
+  // ===== ОБРАБОТЧИКИ =====
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
@@ -36,9 +34,9 @@ function RegisterPage() {
     setRegisterError('');
   };
 
+  // ===== ВХОД =====
   const handleLogin = async (e) => {
-    e.preventDefault(); 
-
+    e.preventDefault();
     setLoginError('');
 
     if (!loginData.email || !loginData.password) {
@@ -47,42 +45,30 @@ function RegisterPage() {
     }
 
     setLoginLoading(true);
-
     try {
       const user = await api.loginUser(loginData.email);
-
       if (!user) {
         setLoginError('Пользователь с таким email не найден');
         setLoginLoading(false);
         return;
       }
-
       if (user.password !== loginData.password) {
         setLoginError('Неверный пароль');
         setLoginLoading(false);
         return;
       }
-
       login(user);
-
-      if (user.role === 'admin') {
-        navigate('/catalog');
-        alert(`👑 Добро пожаловать, администратор ${user.firstName}!`);
-      } else {
-        navigate('/catalog');
-        alert(`✅ Добро пожаловать, ${user.firstName}!`);
-      }
+      navigate('/catalog');
+      alert(`👑 Добро пожаловать, ${user.firstName}!`);
     } catch (error) {
-      console.error('Login error:', error);
-      setLoginError('Ошибка входа. Проверьте подключение к серверу.');
+      setLoginError('Ошибка входа. Проверьте сервер.');
     }
-
     setLoginLoading(false);
   };
 
+  // ===== РЕГИСТРАЦИЯ =====
   const handleRegister = async (e) => {
     e.preventDefault();
-
     setRegisterError('');
 
     if (!registerData.firstName || !registerData.lastName ||
@@ -97,180 +83,149 @@ function RegisterPage() {
     }
 
     setRegisterLoading(true);
-
     try {
       const existing = await api.loginUser(registerData.email);
       if (existing) {
-        setRegisterError('Пользователь с таким email уже существует');
+        setRegisterError('Email уже занят');
         setRegisterLoading(false);
         return;
       }
 
       const newUser = {
         id: Date.now().toString(),
-        email: registerData.email,
-        password: registerData.password,
-        firstName: registerData.firstName,
-        lastName: registerData.lastName,
+        ...registerData,
         role: 'user',
         createdAt: new Date().toISOString()
       };
 
       const created = await api.registerUser(newUser);
-
       login(created);
-      alert(`✅ Регистрация успешна! Добро пожаловать, ${created.firstName}!`);
       navigate('/catalog');
+      alert(`✅ Регистрация успешна! Добро пожаловать, ${created.firstName}!`);
     } catch (error) {
-      console.error('Register error:', error);
-      setRegisterError('Ошибка регистрации. Проверьте подключение к серверу.');
+      setRegisterError('Ошибка регистрации');
     }
-
     setRegisterLoading(false);
   };
 
-  const switchToLogin = () => {
-    setIsLogin(true);
-    setLoginError('');
-    setRegisterError('');
-  };
-
-  const switchToRegister = () => {
-    setIsLogin(false);
-    setLoginError('');
-    setRegisterError('');
-  };
-
   return (
-    <div className="register-page">
-      <div className="catalog-header">
-        <h1>🔐 Account</h1>
-        <p>Login or create a new account</p>
-      </div>
+    <Container className="py-5">
+      <Card className="mx-auto shadow" style={{ maxWidth: '500px' }}>
+        <Card.Header className="text-center bg-primary text-white">
+          <h3 className="mb-0">🔐 Account</h3>
+        </Card.Header>
 
-      <div className="auth-container">
-        <div className="auth-tabs">
-          <button
-            type="button"
-            className={`tab-btn ${isLogin ? 'active' : ''}`}
-            onClick={switchToLogin}
+        <Card.Body>
+          <Tabs
+            activeKey={key}
+            onSelect={(k) => setKey(k)}
+            className="mb-4 justify-content-center"
           >
-            Login
-          </button>
-          <button
-            type="button"
-            className={`tab-btn ${!isLogin ? 'active' : ''}`}
-            onClick={switchToRegister}
-          >
-            Register
-          </button>
-        </div>
+            {/* ===== ВКЛАДКА ВХОДА ===== */}
+            <Tab eventKey="login" title="Login">
+              <Form onSubmit={handleLogin}>
+                {loginError && <Alert variant="danger">{loginError}</Alert>}
 
-        {isLogin ? (
-          <form className="auth-form" onSubmit={handleLogin}>
-            {loginError && (
-              <div className="auth-error">{loginError}</div>
-            )}
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    placeholder="example@mail.com"
+                    value={loginData.email}
+                    onChange={handleLoginChange}
+                  />
+                </Form.Group>
 
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="example@mail.com"
-                value={loginData.email}
-                onChange={handleLoginChange}
-                autoComplete="email"
-              />
-            </div>
+                <Form.Group className="mb-3">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    placeholder="Введите пароль"
+                    value={loginData.password}
+                    onChange={handleLoginChange}
+                  />
+                </Form.Group>
 
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                value={loginData.password}
-                onChange={handleLoginChange}
-                autoComplete="current-password"
-              />
-            </div>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100"
+                  disabled={loginLoading}
+                >
+                  {loginLoading ? '⏳ Вход...' : 'Login'}
+                </Button>
 
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={loginLoading}
-            >
-              {loginLoading ? '⏳ Вход...' : 'Login'}
-            </button>
+                <div className="text-center mt-3 text-muted small">
+                  Тестовый админ: <strong>admin@example.com</strong> / <strong>admin123</strong>
+                </div>
+              </Form>
+            </Tab>
 
-            <p className="auth-hint">
-              Тестовый админ: <strong>admin@example.com</strong> / <strong>admin123</strong>
-            </p>
-          </form>
-        ) : (
-          <form className="auth-form" onSubmit={handleRegister}>
-            {registerError && (
-              <div className="auth-error">{registerError}</div>
-            )}
+            {/* ===== ВКЛАДКА РЕГИСТРАЦИИ ===== */}
+            <Tab eventKey="register" title="Register">
+              <Form onSubmit={handleRegister}>
+                {registerError && <Alert variant="danger">{registerError}</Alert>}
 
-            <div className="form-group">
-              <label>First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                placeholder="Ivan"
-                value={registerData.firstName}
-                onChange={handleRegisterChange}
-              />
-            </div>
+                <Form.Group className="mb-3">
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="firstName"
+                    placeholder="Иван"
+                    value={registerData.firstName}
+                    onChange={handleRegisterChange}
+                  />
+                </Form.Group>
 
-            <div className="form-group">
-              <label>Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                placeholder="Petrov"
-                value={registerData.lastName}
-                onChange={handleRegisterChange}
-              />
-            </div>
+                <Form.Group className="mb-3">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="lastName"
+                    placeholder="Петров"
+                    value={registerData.lastName}
+                    onChange={handleRegisterChange}
+                  />
+                </Form.Group>
 
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="example@mail.com"
-                value={registerData.email}
-                onChange={handleRegisterChange}
-                autoComplete="email"
-              />
-            </div>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    placeholder="example@mail.com"
+                    value={registerData.email}
+                    onChange={handleRegisterChange}
+                  />
+                </Form.Group>
 
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter password (min 6 chars)"
-                value={registerData.password}
-                onChange={handleRegisterChange}
-                autoComplete="new-password"
-              />
-            </div>
+                <Form.Group className="mb-3">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    placeholder="Минимум 6 символов"
+                    value={registerData.password}
+                    onChange={handleRegisterChange}
+                  />
+                </Form.Group>
 
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={registerLoading}
-            >
-              {registerLoading ? '⏳ Регистрация...' : 'Register'}
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+                <Button
+                  variant="success"
+                  type="submit"
+                  className="w-100"
+                  disabled={registerLoading}
+                >
+                  {registerLoading ? '⏳ Регистрация...' : 'Register'}
+                </Button>
+              </Form>
+            </Tab>
+          </Tabs>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 
