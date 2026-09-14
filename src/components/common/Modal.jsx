@@ -1,36 +1,30 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Modal as BootstrapModal, Button } from 'react-bootstrap';
 
-function Modal({ isOpen, onClose, children, title }) {
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-    
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
+function Modal({ isOpen, onClose, children, title, size = 'lg' }) {
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{title}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-        <div className="modal-body">
-          {children}
-        </div>
-      </div>
-    </div>
+    <BootstrapModal
+      show={isOpen}
+      onHide={onClose}
+      centered
+      size={size}
+      backdrop="static"
+      keyboard={true}
+    >
+      <BootstrapModal.Header closeButton>
+        <BootstrapModal.Title>{title}</BootstrapModal.Title>
+      </BootstrapModal.Header>
+
+      <BootstrapModal.Body>
+        {children}
+      </BootstrapModal.Body>
+
+      <BootstrapModal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Закрыть
+        </Button>
+      </BootstrapModal.Footer>
+    </BootstrapModal>
   );
 }
 
