@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Row, Col, Button, Badge, ListGroup } from 'react-bootstrap';
 import Modal from '../common/Modal';
 import { useAuth } from '../../context/AuthContext';
 
@@ -8,21 +9,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
   const { isAuthenticated } = useAuth();
 
   if (!product) return null;
-
-  const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      const goToLogin = window.confirm(
-        '🔒 Для добавления в корзину необходимо войти в аккаунт.\n\nПерейти на страницу входа?'
-      );
-      if (goToLogin) {
-        onClose();
-        navigate('/register');
-      }
-      return;
-    }
-    onAddToCart(product);
-    onClose();
-  };
 
   const getTranslatedName = () => {
     const lang = localStorage.getItem('language') || 'en';
@@ -44,36 +30,97 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
     return stars;
   };
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title={getTranslatedName()}>
-      <div className="product-modal">
-        <div className="product-modal-image">
-          <img src={product.image} alt={getTranslatedName()} />
-        </div>
-        <div className="product-modal-info">
-          <div className="product-modal-category">{product.category}</div>
-          <div className="product-modal-price">£{product.price.toFixed(2)}</div>
-          <div className="product-modal-rating">{generateStars(product.rating)}</div>
-          <p className="product-modal-description">{getTranslatedDescription()}</p>
-          <span className={`card-stock ${product.inStock ? 'in-stock' : 'out-stock'}`}>
-            {product.inStock ? '✓ In stock' : '✗ Out of stock'}
-          </span>
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      const goToLogin = window.confirm(
+        '🔒 Для добавления в корзину необходимо войти в аккаунт.\n\nПерейти на страницу входа?'
+      );
+      if (goToLogin) {
+        onClose();
+        navigate('/register');
+      }
+      return;
+    }
+    onAddToCart(product);
+    onClose();
+  };
 
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={getTranslatedName()}
+      size="lg"
+    >
+      <Row>
+        {/* ===== ИЗОБРАЖЕНИЕ ===== */}
+        <Col md={5} className="text-center mb-3 mb-md-0">
+          <img
+            src={product.image || '/assets/images/placeholder.jpg'}
+            alt={getTranslatedName()}
+            className="img-fluid rounded"
+            style={{ maxHeight: '300px', objectFit: 'contain' }}
+            onError={(e) => { e.target.src = '/assets/images/placeholder.jpg'; }}
+          />
+        </Col>
+
+        {/* ===== ИНФОРМАЦИЯ ===== */}
+        <Col md={7}>
+          <Badge bg="info" className="mb-2">
+            {product.category || 'General'}
+          </Badge>
+
+          <h3 className="text-primary">
+            £{(product.price || 0).toFixed(2)}
+          </h3>
+
+          <div className="text-warning fs-5 mb-3">
+            {generateStars(product.rating)}
+          </div>
+
+          <p className="text-muted">
+            {getTranslatedDescription()}
+          </p>
+
+          <Badge
+            bg={product.inStock ? 'success' : 'danger'}
+            className="mb-3 fs-6"
+          >
+            {product.inStock ? '✓ In stock' : '✗ Out of stock'}
+          </Badge>
+
+          {/* ===== ХАРАКТЕРИСТИКИ ===== */}
+          <ListGroup variant="flush" className="mb-3">
+            <ListGroup.Item>
+              <strong>ID:</strong> {product.id}
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <strong>Category:</strong> {product.category}
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <strong>Rating:</strong> {product.rating} / 5
+            </ListGroup.Item>
+          </ListGroup>
+
+          {/* ===== ПРЕДУПРЕЖДЕНИЕ ДЛЯ ГОСТЕЙ ===== */}
           {!isAuthenticated && (
-            <div className="modal-auth-warning">
-              ℹ️ <a href="/register">Войдите в аккаунт</a>, чтобы добавить в корзину
+            <div className="alert alert-warning small">
+              ℹ️ <a href="/register" className="alert-link">Войдите</a>, чтобы добавить в корзину
             </div>
           )}
 
-          <button 
-            className="modal-add-to-cart"
+          {/* ===== КНОПКА ===== */}
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-100"
             onClick={handleAddToCart}
             disabled={!product.inStock}
           >
             🛒 Add to cart
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Col>
+      </Row>
     </Modal>
   );
 }
