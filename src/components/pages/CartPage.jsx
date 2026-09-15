@@ -10,19 +10,25 @@ import {
   selectCartTotal,
   selectCartLoading
 } from '../../features/cart/cartSlice';
+import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import { useLanguage } from '../../context/LanguageContext';
 
 function CartPage() {
   const dispatch = useAppDispatch();
   const { t, lang } = useLanguage();
 
+  // ===== REDUX STATE =====
   const cartItems = useAppSelector(selectCartItems);
   const total = useAppSelector(selectCartTotal);
   const loading = useAppSelector(selectCartLoading);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
+  // ===== ЗАГРУЗКА =====
   useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]);
+    if (isAuthenticated) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, isAuthenticated]);
 
   const updateQuantity = (id, quantity) => {
     if (quantity < 1) {
@@ -43,21 +49,38 @@ function CartPage() {
     return name[currentLang] || name.en || 'Product';
   };
 
-  if (loading) {
+  // ===== НЕ АВТОРИЗОВАН =====
+  if (!isAuthenticated) {
     return (
       <Container className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Загрузка...</p>
+        <Alert variant="warning">
+          <h2>🔒 Требуется вход</h2>
+          <p>Для просмотра корзины необходимо войти в аккаунт</p>
+        </Alert>
+        <Button as={Link} to="/register" variant="primary" size="lg">
+          👤 Войти
+        </Button>
       </Container>
     );
   }
 
+  // ===== ЗАГРУЗКА =====
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-3">Загрузка корзины...</p>
+      </Container>
+    );
+  }
+
+  // ===== ПУСТАЯ КОРЗИНА =====
   if (cartItems.length === 0) {
     return (
       <Container className="text-center py-5">
         <Alert variant="info">
           <h2>🛍️ Корзина пуста</h2>
-          <p>Добавьте товары в корзину</p>
+          <p>Добавьте товары в корзину, чтобы оформить заказ</p>
         </Alert>
         <Button as={Link} to="/catalog" variant="primary" size="lg">
           🛍️ В каталог
@@ -96,14 +119,34 @@ function CartPage() {
               <td>£{item.price.toFixed(2)}</td>
               <td>
                 <div className="d-flex align-items-center gap-2">
-                  <Button size="sm" variant="outline-secondary" onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</Button>
+                  <Button
+                    size="sm"
+                    variant="outline-secondary"
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  >
+                    −
+                  </Button>
                   <Badge bg="secondary" className="fs-6">{item.quantity}</Badge>
-                  <Button size="sm" variant="outline-secondary" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</Button>
+                  <Button
+                    size="sm"
+                    variant="outline-secondary"
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  >
+                    +
+                  </Button>
                 </div>
               </td>
-              <td className="fw-bold text-primary">£{(item.price * item.quantity).toFixed(2)}</td>
+              <td className="fw-bold text-primary">
+                £{(item.price * item.quantity).toFixed(2)}
+              </td>
               <td>
-                <Button size="sm" variant="danger" onClick={() => removeItem(item.id)}>🗑️</Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => removeItem(item.id)}
+                >
+                  🗑️
+                </Button>
               </td>
             </tr>
           ))}

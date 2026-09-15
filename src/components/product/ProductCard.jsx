@@ -2,15 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import {
-  addToCartAsync,
-  selectCartItems
-} from '../../features/cart/cartSlice';
+import { addToCartAsync, selectCartItems } from '../../features/cart/cartSlice';
 import {
   addToFavorites,
   removeFromFavorites,
   selectFavorites
 } from '../../features/favorites/favoritesSlice';
+import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNotification } from '../../hooks/useNotification';
 import Notification from '../common/Notification';
@@ -24,6 +22,7 @@ function ProductCard({ product }) {
   // ===== REDUX STATE =====
   const cartItems = useAppSelector(selectCartItems);
   const favorites = useAppSelector(selectFavorites);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isFavorite = favorites.some(f => f.productId === product.id);
 
   // ===== ПЕРЕВОДЫ =====
@@ -49,8 +48,6 @@ function ProductCard({ product }) {
   };
 
   // ===== АВТОРИЗАЦИЯ =====
-  const isAuthenticated = !!localStorage.getItem('currentUser');
-
   const requireAuth = (actionName) => {
     if (!isAuthenticated) {
       showWarning(`🔒 Для "${actionName}" необходимо войти в аккаунт`);
@@ -100,7 +97,6 @@ function ProductCard({ product }) {
     if (!requireAuth('добавления в корзину')) return;
 
     try {
-      // Проверяем, есть ли уже в корзине
       const existing = cartItems.find(i => i.productId === product.id);
 
       if (existing) {
@@ -168,7 +164,7 @@ function ProductCard({ product }) {
                 zIndex: 5
               }}
             >
-              {t('topProduct') || '⭐ Топ'}
+              ⭐ Топ
             </span>
           )}
         </div>
@@ -214,7 +210,7 @@ function ProductCard({ product }) {
                 whiteSpace: 'nowrap'
               }}
             >
-              {product.inStock ? t('inStock') : t('outOfStock')}
+              {product.inStock ? '✓ В наличии' : '✗ Нет в наличии'}
             </span>
           </div>
 
@@ -224,7 +220,7 @@ function ProductCard({ product }) {
             onClick={addToCart}
             disabled={!product.inStock}
           >
-            🛒 {t('addToCart')}
+            🛒 В корзину
           </Button>
         </Card.Body>
       </Card>

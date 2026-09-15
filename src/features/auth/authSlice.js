@@ -34,6 +34,7 @@ const authSlice = createSlice({
 export const { loginSuccess, logout, setError } = authSlice.actions;
 
 export const selectUser = (state) => state.auth.user;
+export const selectUserId = (state) => state.auth.user?.id || null;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsAdmin = (state) => state.auth.isAdmin;
 

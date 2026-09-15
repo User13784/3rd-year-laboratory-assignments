@@ -11,7 +11,8 @@ import {
   selectUser,
   logout
 } from './features/auth/authSlice';
-import { selectCartCount } from './features/cart/cartSlice';
+import { selectCartCount, clearCartOnLogout } from './features/cart/cartSlice';
+import { clearFavoritesOnLogout } from './features/favorites/favoritesSlice';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/layout/Sidebar';
@@ -41,7 +42,12 @@ function Header() {
 
   const handleLogout = () => {
     if (window.confirm('Выйти из аккаунта?')) {
+      // ✅ Очищаем Redux state (корзина + избранное)
+      dispatch(clearCartOnLogout());
+      dispatch(clearFavoritesOnLogout());
       dispatch(logout());
+
+      // Редирект на главную
       window.location.href = '/';
     }
   };

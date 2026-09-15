@@ -1,14 +1,37 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
 
+// ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ =====
+const getUserId = () => {
+  const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+  return user?.id || null;
+};
+
+// ===== АСИНХРОННЫЕ ДЕЙСТВИЯ =====
+
+// Загрузить корзину текущего пользователя
 export const fetchCart = createAsyncThunk('cart/fetchCart', async () => {
-  return await api.getCart();
+  const userId = getUserId();
+  if (!userId) return [];
+
+  const allCart = await api.getCart();
+  return allCart.filter(item => item.userId === userId);
 });
 
+// Добавить в корзину
 export const addToCartAsync = createAsyncThunk('cart/addToCart', async (item) => {
-  return await api.addToCart(item);
+  const userId = getUserId();
+  if (!userId) throw new Error('User not authenticated');
+
+  const cartItem = {
+    ...item,
+    userId: userId
+  };
+
+  return await api.addToCart(cartItem);
 });
 
+// Обновить количество
 export const updateCartQuantity = createAsyncThunk(
   'cart/updateQuantity',
   async ({ id, quantity }) => {
@@ -16,6 +39,7 @@ export const updateCartQuantity = createAsyncThunk(
   }
 );
 
+// Удалить из корзины
 export const removeFromCartAsync = createAsyncThunk(
   'cart/removeFromCart',
   async (id) => {
@@ -24,20 +48,28 @@ export const removeFromCartAsync = createAsyncThunk(
   }
 );
 
+// Очистить корзину текущего пользователя
 export const clearCartAsync = createAsyncThunk('cart/clearCart', async () => {
-  const cart = await api.getCart();
-  for (const item of cart) {
+  const userId = getUserId();
+  if (!userId) return [];
+
+  const allCart = await api.getCart();
+  const userCart = allCart.filter(item => item.userId === userId);
+
+  for (const item of userCart) {
     await api.removeFromCart(item.id);
   }
   return [];
 });
 
+// ===== НАЧАЛЬНОЕ СОСТОЯНИЕ =====
 const initialState = {
   items: [],
   loading: false,
   error: null
 };
 
+// ===== СЛАЙС =====
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
@@ -60,6 +92,12 @@ const cartSlice = createSlice({
     },
     clearCart(state) {
       state.items = [];
+    },
+    // Очистить корзину при выходе пользователя
+    clearCartOnLogout(state) {
+      state.items = [];
+      state.loading = false;
+      state.error = null;
     },
     setError(state, action) {
       state.error = action.payload;
@@ -95,8 +133,12 @@ const cartSlice = createSlice({
   }
 });
 
-export const { addItem, removeItem, updateQuantity, clearCart, setError } = cartSlice.actions;
+export const {
+  addItem, removeItem, updateQuantity, clearCart,
+  clearCartOnLogout, setError
+} = cartSlice.actions;
 
+// ===== СЕЛЕКТОРЫ =====
 export const selectCartItems = (state) => state.cart.items;
 export const selectCartTotal = (state) =>
   state.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);

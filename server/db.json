@@ -15,7 +15,7 @@
         "ru": "Роскошный диван из велюра премиум-класса с высокой спинкой и мягкими подлокотниками. Идеален для современных гостиных."
       },
       "image": "/assets/images/c1.jpg",
-      "isFavorite": true
+      "isFavorite": false
     },
     {
       "id": "2",
@@ -258,36 +258,6 @@
   ],
   "favorites": [
     {
-      "productId": "1",
-      "name": {
-        "en": "Luxury Velvet Sofa",
-        "ru": "Роскошный велюровый диван"
-      },
-      "price": 899,
-      "image": "/assets/images/c1.jpg",
-      "category": "sofa",
-      "rating": 5,
-      "description": {
-        "en": "Premium luxury velvet sofa with high back and soft armrests. Perfect for modern living rooms.",
-        "ru": "Роскошный диван из велюра премиум-класса с высокой спинкой и мягкими подлокотниками. Идеален для современных гостиных."
-      },
-      "inStock": true,
-      "id": "LFzHktLlIbU"
-    }
-  ],
-  "cart": [
-    {
-      "productId": "1",
-      "name": {
-        "en": "Luxury Velvet Sofa",
-        "ru": "Роскошный велюровый диван"
-      },
-      "price": 899,
-      "image": "/assets/images/c1.jpg",
-      "quantity": 1,
-      "id": "KqSAMG1hAjc"
-    },
-    {
       "productId": "4",
       "name": {
         "en": "Coffee Table",
@@ -295,8 +265,29 @@
       },
       "price": 250,
       "image": "/assets/images/c4.jpg",
+      "category": "living",
+      "rating": 4,
+      "inStock": true,
+      "description": {
+        "en": "Modern coffee table with tempered glass top and chrome legs. Minimalist design fits any interior.",
+        "ru": "Современный журнальный столик с закаленным стеклом и хромированными ножками. Минималистичный дизайн подходит к любому интерьеру."
+      },
+      "userId": "1",
+      "id": "kFLg-VeYZ9o"
+    }
+  ],
+  "cart": [
+    {
+      "productId": "2",
+      "name": {
+        "en": "Modern L-Shaped Sofa",
+        "ru": "Современный угловой диван"
+      },
+      "price": 1250,
+      "image": "/assets/images/c2.jpg",
       "quantity": 1,
-      "id": "ZSivMnszGHg"
+      "userId": "1",
+      "id": "fAQK3JgiJDY"
     }
   ],
   "users": [
@@ -321,9 +312,9 @@
   "feedback": [
     {
       "id": "1",
-      "userId": 1,
+      "userId": "1",
       "userNickname": "Admin",
-      "productId": 1,
+      "productId": "1",
       "productName": {
         "en": "Luxury Velvet Sofa",
         "ru": "Роскошный велюровый диван"

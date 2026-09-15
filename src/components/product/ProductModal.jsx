@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Button, Badge, ListGroup } from 'react-bootstrap';
+import { useAppSelector } from '../../hooks/reduxHooks';
+import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import Modal from '../common/Modal';
-import { useAuth } from '../../context/AuthContext';
 
 function ProductModal({ product, isOpen, onClose, onAddToCart }) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   if (!product) return null;
 
@@ -53,7 +54,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
       size="lg"
     >
       <Row>
-        {/* ===== ИЗОБРАЖЕНИЕ ===== */}
         <Col md={5} className="text-center mb-3 mb-md-0">
           <img
             src={product.image || '/assets/images/placeholder.jpg'}
@@ -64,7 +64,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
           />
         </Col>
 
-        {/* ===== ИНФОРМАЦИЯ ===== */}
         <Col md={7}>
           <Badge bg="info" className="mb-2">
             {product.category || 'General'}
@@ -86,30 +85,27 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
             bg={product.inStock ? 'success' : 'danger'}
             className="mb-3 fs-6"
           >
-            {product.inStock ? '✓ In stock' : '✗ Out of stock'}
+            {product.inStock ? '✓ В наличии' : '✗ Нет в наличии'}
           </Badge>
 
-          {/* ===== ХАРАКТЕРИСТИКИ ===== */}
           <ListGroup variant="flush" className="mb-3">
             <ListGroup.Item>
               <strong>ID:</strong> {product.id}
             </ListGroup.Item>
             <ListGroup.Item>
-              <strong>Category:</strong> {product.category}
+              <strong>Категория:</strong> {product.category}
             </ListGroup.Item>
             <ListGroup.Item>
-              <strong>Rating:</strong> {product.rating} / 5
+              <strong>Рейтинг:</strong> {product.rating} / 5
             </ListGroup.Item>
           </ListGroup>
 
-          {/* ===== ПРЕДУПРЕЖДЕНИЕ ДЛЯ ГОСТЕЙ ===== */}
           {!isAuthenticated && (
             <div className="alert alert-warning small">
               ℹ️ <a href="/register" className="alert-link">Войдите</a>, чтобы добавить в корзину
             </div>
           )}
 
-          {/* ===== КНОПКА ===== */}
           <Button
             variant="primary"
             size="lg"
@@ -117,7 +113,7 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
             onClick={handleAddToCart}
             disabled={!product.inStock}
           >
-            🛒 Add to cart
+            🛒 Добавить в корзину
           </Button>
         </Col>
       </Row>
