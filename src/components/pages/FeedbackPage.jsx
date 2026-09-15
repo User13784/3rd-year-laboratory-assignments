@@ -1,34 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Container, Row, Col, Card, Badge, Alert, Spinner } from 'react-bootstrap';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Badge,
-  Alert,
-  Spinner
-} from 'react-bootstrap';
-import { api } from '../../services/api';
+  fetchFeedback,
+  selectFeedback,
+  selectFeedbackLoading
+} from '../../features/feedback/feedbackSlice';
 import { useLanguage } from '../../context/LanguageContext';
 
 function FeedbackPage() {
+  const dispatch = useAppDispatch();
   const { t, lang } = useLanguage();
-  const [feedback, setFeedback] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  // ===== REDUX STATE =====
+  const feedback = useAppSelector(selectFeedback);
+  const loading = useAppSelector(selectFeedbackLoading);
+
+  // ===== ЗАГРУЗКА =====
   useEffect(() => {
-    loadFeedback();
-  }, [lang]);
-
-  const loadFeedback = async () => {
-    try {
-      const data = await api.getFeedback();
-      setFeedback(data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-    setLoading(false);
-  };
+    dispatch(fetchFeedback());
+  }, [dispatch]);
 
   const getTranslatedText = (text) => {
     const currentLang = lang || localStorage.getItem('language') || 'en';
@@ -67,7 +58,7 @@ function FeedbackPage() {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">{t('loadingProducts')}</p>
+        <p className="mt-3">Загрузка отзывов...</p>
       </Container>
     );
   }
@@ -78,9 +69,10 @@ function FeedbackPage() {
 
   return (
     <Container className="py-4">
+      {/* ===== ЗАГОЛОВОК ===== */}
       <div className="text-center mb-4">
-        <h1 className="display-5">{t('reviewsTitle')}</h1>
-        <p className="text-muted">{t('reviewsSubtitle')}</p>
+        <h1 className="display-5">⭐ Отзывы покупателей</h1>
+        <p className="text-muted">Поделитесь своим мнением о товарах</p>
 
         {feedback.length > 0 && (
           <div
@@ -101,12 +93,10 @@ function FeedbackPage() {
                 borderRadius: '12px',
                 fontSize: '14px',
                 fontWeight: '600',
-                whiteSpace: 'nowrap',
-                display: 'inline-block',
-                lineHeight: '1.4'
+                whiteSpace: 'nowrap'
               }}
             >
-              {t('totalReviews')} {feedback.length}
+              Всего отзывов: {feedback.length}
             </span>
 
             <span
@@ -117,21 +107,20 @@ function FeedbackPage() {
                 borderRadius: '12px',
                 fontSize: '14px',
                 fontWeight: '600',
-                whiteSpace: 'nowrap',
-                display: 'inline-block',
-                lineHeight: '1.4'
+                whiteSpace: 'nowrap'
               }}
             >
-              {t('avgRating')} {avgRating} ⭐
+              Средний рейтинг: {avgRating} ⭐
             </span>
           </div>
         )}
       </div>
 
+      {/* ===== ОТЗЫВЫ ===== */}
       {feedback.length === 0 ? (
         <Alert variant="info" className="text-center">
-          <h4>{t('noReviews')}</h4>
-          <p>{t('noReviewsHint')}</p>
+          <h4>💬 Пока нет отзывов</h4>
+          <p>Будьте первым, кто оставит отзыв!</p>
         </Alert>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
@@ -147,13 +136,7 @@ function FeedbackPage() {
                     flexWrap: 'wrap'
                   }}
                 >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px'
-                    }}
-                  >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div
                       style={{
                         width: '40px',
@@ -164,20 +147,13 @@ function FeedbackPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontWeight: 'bold',
-                        flexShrink: 0
+                        fontWeight: 'bold'
                       }}
                     >
                       {(review.userNickname || 'U').charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: '14px',
-                          color: '#264A51'
-                        }}
-                      >
+                      <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#264A51' }}>
                         {review.userNickname || 'User'}
                       </div>
                       <small style={{ color: '#5a7c85', fontSize: '11px' }}>
@@ -216,28 +192,13 @@ function FeedbackPage() {
                     {generateStars(review.rating)}
                   </div>
 
-                  {/* Текст отзыва */}
-                  <Card.Text
-                    style={{
-                      fontSize: '14px',
-                      lineHeight: '1.6',
-                      color: '#333'
-                    }}
-                  >
+                  <Card.Text style={{ fontSize: '14px', lineHeight: '1.6' }}>
                     {getTranslatedText(review.text)}
                   </Card.Text>
                 </Card.Body>
 
-                <Card.Footer
-                  style={{
-                    backgroundColor: '#f8fafc',
-                    color: '#5a7c85',
-                    fontSize: '12px'
-                  }}
-                >
-                  <span>
-                    {t('rating')}: {review.rating} / 5
-                  </span>
+                <Card.Footer style={{ backgroundColor: '#f8fafc', color: '#5a7c85', fontSize: '12px' }}>
+                  Рейтинг: {review.rating} / 5
                 </Card.Footer>
               </Card>
             </Col>
