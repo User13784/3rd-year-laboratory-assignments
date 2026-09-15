@@ -576,3 +576,187 @@ body.dark-theme .edit-product-btn-center {
 body.dark-theme .edit-product-btn-center:hover {
   background-color: #FFB800;
 }
+
+/* ============================================
+   БЕЙДЖИ — ФИКС ОБРЕЗКИ ТЕКСТА
+   ============================================ */
+
+/* Все бейджи в карточках — прямоугольные с автоподстройкой */
+.product-card-bs .badge,
+.card .badge,
+.product-modal .badge,
+.modal-body .badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+
+  border-radius: 10px !important;
+  flex-shrink: 0 !important;
+
+  /* УБИРАЕМ ОБРЕЗКУ */
+  overflow: visible !important;
+  text-overflow: clip !important;
+  box-sizing: content-box !important;
+}
+
+/* Бейдж категории (голубой) */
+.product-card-bs .badge.bg-info,
+.card .badge.bg-info,
+.product-modal .badge.bg-info,
+.modal-body .badge.bg-info {
+  background-color: #71B3C6 !important;
+  color: white !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+}
+
+/* Бейдж "В наличии" / "Нет в наличии" */
+.product-card-bs .badge.bg-success,
+.product-card-bs .badge.bg-danger,
+.card .badge.bg-success,
+.card .badge.bg-danger,
+.product-modal .badge.bg-success,
+.product-modal .badge.bg-danger {
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+  border-radius: 10px !important;
+}
+
+/* Бейдж "Топ" (золотой) */
+.product-card-bs .badge.bg-warning,
+.card .badge.bg-warning {
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  border-radius: 10px !important;
+}
+
+/* Бейдж в модалке — статус наличия */
+.product-modal .card-stock,
+.modal-body .card-stock {
+  display: inline-block !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  border-radius: 10px !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+/* ============================================
+   БЕЙДЖ В NAVBAR (счётчик корзины) — маленький
+   ============================================ */
+.navbar .badge {
+  font-size: 10px !important;
+  padding: 3px 6px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ============================================
+   BADGE В HEADER (👑 Admin)
+   ============================================ */
+.navbar .badge.bg-warning {
+  font-size: 11px !important;
+  padding: 5px 10px !important;
+  border-radius: 8px !important;
+}
+
+/* ============================================
+   BADGE В CART / ORDERS
+   ============================================ */
+.table .badge,
+.cart-item .badge {
+  font-size: 12px !important;
+  padding: 5px 10px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+}
+
+/* ============================================
+   ОБЩИЕ ПРАВИЛА — БЕЙДЖИ НЕ ОБРЕЗАЮТСЯ
+   ============================================ */
+.badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  width: auto !important;
+  height: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Не позволять flexbox сжимать бейджи */
+.d-flex > .badge,
+.card-body > .badge,
+.modal-body > .badge,
+.position-relative > .badge {
+  flex-shrink: 0 !important;
+}
+
+/* ============================================
+   АДАПТИВНОСТЬ
+   ============================================ */
+@media (max-width: 480px) {
+  .product-card-bs .badge,
+  .card .badge,
+  .product-modal .badge,
+  .modal-body .badge {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+@media (max-width: 320px) {
+  .product-card-bs .badge,
+  .card .badge,
+  .product-modal .badge,
+  .modal-body .badge {
+    font-size: 9px !important;
+    padding: 3px 6px !important;
+  }
+}
+
+/* ============================================
+   ТЁМНАЯ ТЕМА
+   ============================================ */
+body.dark-theme .badge {
+  color: white;
+}
+
+body.dark-theme .badge.bg-info {
+  background-color: #4a8a9f !important;
+}
+
+body.dark-theme .badge.bg-success {
+  background-color: #2e7d32 !important;
+}
+
+body.dark-theme .badge.bg-danger {
+  background-color: #c62828 !important;
+}
+
+body.dark-theme .badge.bg-warning {
+  background-color: #FFB800 !important;
+  color: #264A51 !important;
+}

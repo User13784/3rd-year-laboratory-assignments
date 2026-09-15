@@ -19,6 +19,7 @@ function ProductCard({ product }) {
   const { t, i18n } = useTranslation();
   const { notification, showSuccess, showError, showWarning, hideNotification } = useNotification();
 
+  // ===== REDUX STATE =====
   const cartItems = useAppSelector(selectCartItems);
   const favorites = useAppSelector(selectFavorites);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -27,9 +28,9 @@ function ProductCard({ product }) {
   // ===== ПЕРЕВОДЫ =====
   const getTranslatedName = () => {
     const lang = i18n.language || 'ru';
-    if (!product.name) return 'Product';
+    if (!product.name) return t('product');
     if (typeof product.name === 'string') return product.name;
-    return product.name[lang] || product.name.en || 'Product';
+    return product.name[lang] || product.name.en || t('product');
   };
 
   const getTranslatedCategory = () => {
@@ -141,6 +142,7 @@ function ProductCard({ product }) {
             onError={(e) => { e.target.src = '/assets/images/placeholder.jpg'; }}
           />
 
+          {/* Кнопка избранного */}
           <Button
             variant={isFavorite ? 'danger' : 'light'}
             size="sm"
@@ -151,16 +153,27 @@ function ProductCard({ product }) {
             {isFavorite ? '❤️' : '🤍'}
           </Button>
 
+          {/* Бейдж "Топ" */}
           {product.rating >= 4.5 && (
             <span
-              className="position-absolute top-0 start-0 bg-warning text-dark fw-bold"
               style={{
-                fontSize: '11px',
-                padding: '5px 10px',
+                position: 'absolute',
+                top: '12px',
+                left: '12px',
+                display: 'inline-block',
+                backgroundColor: '#FFB800',
+                color: '#264A51',
+                padding: '5px 12px',
                 borderRadius: '10px',
-                marginTop: '12px',
-                marginLeft: '12px',
-                zIndex: 5
+                fontSize: '11px',
+                fontWeight: '700',
+                whiteSpace: 'nowrap',
+                width: 'auto',
+                maxWidth: 'none',
+                minWidth: 'fit-content',
+                overflow: 'visible',
+                zIndex: 5,
+                lineHeight: '1.4'
               }}
             >
               {t('topProduct')}
@@ -171,17 +184,23 @@ function ProductCard({ product }) {
         <Card.Body className="d-flex flex-column">
           <Card.Title className="fs-6">{getTranslatedName()}</Card.Title>
 
-          <div style={{ marginBottom: '8px' }}>
+          {/* Бейдж категории — полный текст */}
+          <div style={{ marginBottom: '10px' }}>
             <span
               style={{
+                display: 'inline-block',
                 backgroundColor: '#71B3C6',
                 color: 'white',
-                padding: '4px 10px',
-                borderRadius: '8px',
-                fontSize: '11px',
+                padding: '5px 12px',
+                borderRadius: '10px',
+                fontSize: '12px',
                 fontWeight: '600',
-                display: 'inline-block',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                width: 'auto',
+                maxWidth: 'none',
+                minWidth: 'fit-content',
+                overflow: 'visible',
+                lineHeight: '1.4'
               }}
             >
               {getTranslatedCategory()}
@@ -196,23 +215,30 @@ function ProductCard({ product }) {
             {generateStars(product.rating)}
           </div>
 
+          {/* Бейдж наличия — полный текст */}
           <div style={{ marginBottom: '12px' }}>
             <span
               style={{
+                display: 'inline-block',
                 backgroundColor: product.inStock ? '#2e7d32' : '#c62828',
                 color: 'white',
-                padding: '6px 12px',
+                padding: '7px 14px',
                 borderRadius: '10px',
                 fontSize: '12px',
                 fontWeight: '600',
-                display: 'inline-block',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                width: 'auto',
+                maxWidth: 'none',
+                minWidth: 'fit-content',
+                overflow: 'visible',
+                lineHeight: '1.4'
               }}
             >
-              {product.inStock ? t('inStock') : t('outOfStock')}
+              {product.inStock ? `✓ ${t('inStock')}` : `✗ ${t('outOfStock')}`}
             </span>
           </div>
 
+          {/* Кнопка "В корзину" */}
           <Button
             variant="primary"
             className="mt-auto w-100"
