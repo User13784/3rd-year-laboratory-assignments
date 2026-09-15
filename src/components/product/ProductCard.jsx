@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
-import { api } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import {
+  addToCartAsync,
+  selectCartItems
+} from '../../features/cart/cartSlice';
+import {
+  addToFavorites,
+  removeFromFavorites,
+  selectFavorites
+} from '../../features/favorites/favoritesSlice';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNotification } from '../../hooks/useNotification';
 import Notification from '../common/Notification';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const dispatch = useAppDispatch();
   const { t, lang } = useLanguage();
-  const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);
   const { notification, showSuccess, showError, showWarning, hideNotification } = useNotification();
 
+  // ===== REDUX STATE =====
+  const cartItems = useAppSelector(selectCartItems);
+  const favorites = useAppSelector(selectFavorites);
+  const isFavorite = favorites.some(f => f.productId === product.id);
+
+  // ===== ПЕРЕВОДЫ =====
   const getTranslatedName = () => {
     const currentLang = lang || localStorage.getItem('language') || 'en';
     if (!product.name) return 'Product';
@@ -35,11 +48,14 @@ function ProductCard({ product }) {
     return key ? t(key) : (product.category || 'General');
   };
 
+  // ===== АВТОРИЗАЦИЯ =====
+  const isAuthenticated = !!localStorage.getItem('currentUser');
+
   const requireAuth = (actionName) => {
     if (!isAuthenticated) {
-      showWarning(`🔒 ${t('loginRequired')}: "${actionName}"`);
+      showWarning(`🔒 Для "${actionName}" необходимо войти в аккаунт`);
       setTimeout(() => {
-        const goToLogin = window.confirm(t('goToLoginConfirm'));
+        const goToLogin = window.confirm('Перейти на страницу входа?');
         if (goToLogin) navigate('/register');
       }, 500);
       return false;
@@ -47,51 +63,63 @@ function ProductCard({ product }) {
     return true;
   };
 
+  // ===== ИЗБРАННОЕ =====
   const toggleFavorite = async (e) => {
     e.stopPropagation();
-    if (!requireAuth(t('favorites'))) return;
+    if (!requireAuth('добавления в избранное')) return;
 
     try {
       if (isFavorite) {
-        const favorites = await api.getFavorites();
         const favItem = favorites.find(f => f.productId === product.id);
-        if (favItem) await api.removeFromFavorites(favItem.id);
-        setIsFavorite(false);
-        showSuccess(`❤️ "${getTranslatedName()}" ${t('removedFromFavorites')}`);
+        if (favItem) {
+          await dispatch(removeFromFavorites(favItem.id)).unwrap();
+          showSuccess(`❤️ "${getTranslatedName()}" удалено из избранного`);
+        }
       } else {
-        await api.addToFavorites({
+        await dispatch(addToFavorites({
           productId: product.id,
           name: product.name,
           price: product.price,
           image: product.image,
           category: product.category,
-          rating: product.rating || 5
-        });
-        setIsFavorite(true);
-        showSuccess(`❤️ "${getTranslatedName()}" ${t('addedToFavorites')}`);
+          rating: product.rating || 5,
+          inStock: product.inStock !== undefined ? product.inStock : true,
+          description: product.description || { en: '', ru: '' }
+        })).unwrap();
+        showSuccess(`❤️ "${getTranslatedName()}" добавлено в избранное`);
       }
     } catch (error) {
       console.error('Error:', error);
-      showError(t('errorFavorite'));
+      showError('Ошибка при работе с избранным');
     }
   };
 
+  // ===== КОРЗИНА =====
   const addToCart = async (e) => {
     e.stopPropagation();
-    if (!requireAuth(t('cart'))) return;
+    if (!requireAuth('добавления в корзину')) return;
 
     try {
-      await api.addToCart({
+      // Проверяем, есть ли уже в корзине
+      const existing = cartItems.find(i => i.productId === product.id);
+
+      if (existing) {
+        showWarning('Товар уже в корзине');
+        return;
+      }
+
+      await dispatch(addToCartAsync({
         productId: product.id,
         name: product.name,
         price: product.price,
         image: product.image,
         quantity: 1
-      });
-      showSuccess(`🛒 "${getTranslatedName()}" ${t('addedToCart')}`);
+      })).unwrap();
+
+      showSuccess(`🛒 "${getTranslatedName()}" добавлен в корзину!`);
     } catch (error) {
       console.error('Error:', error);
-      showError(t('errorCart'));
+      showError('Ошибка добавления в корзину');
     }
   };
 
@@ -123,13 +151,7 @@ function ProductCard({ product }) {
             size="sm"
             className="position-absolute top-0 end-0 m-2 rounded-circle"
             onClick={toggleFavorite}
-            style={{
-              width: '40px',
-              height: '40px',
-              padding: 0,
-              zIndex: 10
-            }}
-            title={isFavorite ? t('favorites') : t('addToFavorites')}
+            style={{ width: '40px', height: '40px', padding: 0, zIndex: 10 }}
           >
             {isFavorite ? '❤️' : '🤍'}
           </Button>
@@ -141,15 +163,12 @@ function ProductCard({ product }) {
                 fontSize: '11px',
                 padding: '5px 10px',
                 borderRadius: '10px',
-                display: 'inline-block',
-                whiteSpace: 'nowrap',
                 marginTop: '12px',
                 marginLeft: '12px',
-                zIndex: 5,
-                boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                zIndex: 5
               }}
             >
-              {t('topProduct')}
+              {t('topProduct') || '⭐ Топ'}
             </span>
           )}
         </div>
@@ -167,8 +186,7 @@ function ProductCard({ product }) {
                 fontSize: '11px',
                 fontWeight: '600',
                 display: 'inline-block',
-                whiteSpace: 'nowrap',
-                lineHeight: '1.4'
+                whiteSpace: 'nowrap'
               }}
             >
               {getTranslatedCategory()}
@@ -193,8 +211,7 @@ function ProductCard({ product }) {
                 fontSize: '12px',
                 fontWeight: '600',
                 display: 'inline-block',
-                whiteSpace: 'nowrap',
-                lineHeight: '1.4'
+                whiteSpace: 'nowrap'
               }}
             >
               {product.inStock ? t('inStock') : t('outOfStock')}
