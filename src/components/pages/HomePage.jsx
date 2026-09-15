@@ -9,9 +9,11 @@ import {
   Badge
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
-function HomePage({ title = "Best Furniture For Your Interior" }) {
-  // ===== СЧЁТЧИКИ =====
+function HomePage() {
+  const { t, lang } = useLanguage();
+
   const [counters, setCounters] = useState({
     clients: 0,
     sold: 0,
@@ -19,16 +21,20 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     experience: 0
   });
 
-  // ===== МЕДИАГАЛЕРЕЯ =====
   const galleryImages = [
-    { src: '/assets/images/c1.jpg', name: 'Luxury Velvet Sofa' },
-    { src: '/assets/images/c2.jpg', name: 'Modern L-Shaped Sofa' },
-    { src: '/assets/images/c3.jpg', name: 'Classic Leather Sofa' },
-    { src: '/assets/images/c4.jpg', name: 'Coffee Table' },
-    { src: '/assets/images/c5.jpg', name: 'Dining Table Set' }
+    { src: '/assets/images/c1.jpg', name: { en: 'Luxury Velvet Sofa', ru: 'Роскошный велюровый диван' } },
+    { src: '/assets/images/c2.jpg', name: { en: 'Modern L-Shaped Sofa', ru: 'Современный угловой диван' } },
+    { src: '/assets/images/c3.jpg', name: { en: 'Classic Leather Sofa', ru: 'Классический кожаный диван' } },
+    { src: '/assets/images/c4.jpg', name: { en: 'Coffee Table', ru: 'Журнальный столик' } },
+    { src: '/assets/images/c5.jpg', name: { en: 'Dining Table Set', ru: 'Обеденный стол' } }
   ];
 
-  // ===== АНИМАЦИЯ СЧЁТЧИКОВ =====
+  const getTranslatedGalleryName = (name) => {
+    const currentLang = lang || localStorage.getItem('language') || 'en';
+    if (typeof name === 'string') return name;
+    return name[currentLang] || name.en || '';
+  };
+
   useEffect(() => {
     const targets = { clients: 5000, sold: 1200, awards: 150, experience: 24 };
     const duration = 2000;
@@ -54,9 +60,17 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
     return () => clearInterval(timer);
   }, []);
 
+  const productCategories = [
+    { title: t('catSofa'), img: '/assets/images/c1.jpg', category: 'sofa' },
+    { title: t('catLiving'), img: '/assets/images/c4.jpg', category: 'living' },
+    { title: t('catKitchen'), img: '/assets/images/c5.jpg', category: 'kitchen' },
+    { title: t('catBedroom'), img: '/assets/images/c7.jpg', category: 'bedroom' },
+    { title: t('catBathroom'), img: '/assets/images/c9.jpg', category: 'bathroom' },
+    { title: t('catDecor'), img: '/assets/images/c10.jpg', category: 'decor' }
+  ];
+
   return (
     <>
-      {/* ===== HERO СЕКЦИЯ С CAROUSEL ===== */}
       <Container fluid className="p-0 mb-5">
         <Carousel fade>
           <Carousel.Item>
@@ -68,11 +82,11 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
               }}
             >
               <div className="text-center px-3">
-                <p className="fs-4 fst-italic text-info">Save The Weekend</p>
-                <h1 className="display-3 fw-bold">Awesome design</h1>
-                <h2 className="display-5 mb-4">{title}</h2>
+                <p className="fs-4 fst-italic text-info">{t('heroSmall')}</p>
+                <h1 className="display-3 fw-bold">{t('heroMedium')}</h1>
+                <h2 className="display-5 mb-4">{t('bestFurniture')}</h2>
                 <Button as={Link} to="/catalog" variant="info" size="lg">
-                  Explore More
+                  {t('exploreMore')}
                 </Button>
               </div>
             </div>
@@ -87,11 +101,11 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
               }}
             >
               <div className="text-center px-3">
-                <p className="fs-4 fst-italic">Best quality</p>
-                <h1 className="display-3 fw-bold">Modern Furniture</h1>
-                <h2 className="display-5 mb-4">For Your Home</h2>
+                <p className="fs-4 fst-italic">{t('bestQuality')}</p>
+                <h1 className="display-3 fw-bold">{t('modernFurniture')}</h1>
+                <h2 className="display-5 mb-4">{t('forYourHome')}</h2>
                 <Button as={Link} to="/catalog" variant="light" size="lg">
-                  View Collection
+                  {t('viewCollection')}
                 </Button>
               </div>
             </div>
@@ -106,11 +120,11 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
               }}
             >
               <div className="text-center px-3">
-                <p className="fs-4 fst-italic">Special offer</p>
-                <h1 className="display-3 fw-bold">50% OFF</h1>
-                <h2 className="display-5 mb-4">This Weekend Only</h2>
+                <p className="fs-4 fst-italic">{t('specialOffer')}</p>
+                <h1 className="display-3 fw-bold">50% {t('off')}</h1>
+                <h2 className="display-5 mb-4">{t('weekendOnly')}</h2>
                 <Button as={Link} to="/catalog" variant="danger" size="lg">
-                  Shop Now
+                  {t('shopNow')}
                 </Button>
               </div>
             </div>
@@ -118,14 +132,13 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </Carousel>
       </Container>
 
-      {/* ===== СЧЁТЧИКИ ===== */}
       <Container className="mb-5">
         <Row className="g-4 text-center">
           {[
-            { value: counters.clients, label: 'Happy Clients', icon: '😊' },
-            { value: counters.sold, label: 'Sold Items', icon: '📦' },
-            { value: counters.awards, label: 'Awards', icon: '🏆' },
-            { value: counters.experience, label: 'Years Experience', icon: '📅' }
+            { value: counters.clients, label: t('happyClients'), icon: '😊' },
+            { value: counters.sold, label: t('soldItems'), icon: '📦' },
+            { value: counters.awards, label: t('awards'), icon: '🏆' },
+            { value: counters.experience, label: t('yearsExperience'), icon: '📅' }
           ].map((item, idx) => (
             <Col xs={6} md={3} key={idx}>
               <Card className="h-100 shadow-sm border-0">
@@ -140,22 +153,14 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </Row>
       </Container>
 
-      {/* ===== НАШИ ТОВАРЫ ===== */}
       <Container className="mb-5">
         <div className="text-center mb-4">
-          <h1 className="display-5">Our Products</h1>
-          <p className="text-muted">Choose the perfect furniture for your home</p>
+          <h1 className="display-5">{t('ourProducts')}</h1>
+          <p className="text-muted">{t('ourProductsSubtitle')}</p>
         </div>
 
         <Row xs={1} sm={2} md={3} className="g-4">
-          {[
-            { title: 'Sofas', img: '/assets/images/c1.jpg', category: 'sofa' },
-            { title: 'Living Room', img: '/assets/images/c4.jpg', category: 'living' },
-            { title: 'Kitchen', img: '/assets/images/c5.jpg', category: 'kitchen' },
-            { title: 'Bedroom', img: '/assets/images/c7.jpg', category: 'bedroom' },
-            { title: 'Bathroom', img: '/assets/images/c9.jpg', category: 'bathroom' },
-            { title: 'Decor', img: '/assets/images/c10.jpg', category: 'decor' }
-          ].map((cat, idx) => (
+          {productCategories.map((cat, idx) => (
             <Col key={idx}>
               <Card className="h-100 shadow-sm text-center">
                 <Card.Img
@@ -172,7 +177,7 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
                     variant="outline-primary"
                     size="sm"
                   >
-                    View Items
+                    {t('viewItems')}
                   </Button>
                 </Card.Body>
               </Card>
@@ -181,11 +186,10 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </Row>
       </Container>
 
-      {/* ===== МЕДИАГАЛЕРЕЯ ===== */}
       <Container className="mb-5">
         <Card className="shadow-sm">
           <Card.Body>
-            <h2 className="text-center mb-4">🎵 Media Gallery</h2>
+            <h2 className="text-center mb-4">{t('mediaGallery')}</h2>
 
             <Carousel variant="dark">
               {galleryImages.map((img, idx) => (
@@ -193,12 +197,14 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
                   <img
                     className="d-block w-100"
                     src={img.src}
-                    alt={img.name}
+                    alt={getTranslatedGalleryName(img.name)}
                     style={{ height: '400px', objectFit: 'contain', background: '#f5f7fa' }}
                     onError={(e) => { e.target.src = '/assets/images/chair.png'; }}
                   />
                   <Carousel.Caption>
-                    <Badge bg="primary" className="fs-6">{img.name}</Badge>
+                    <Badge bg="primary" className="fs-6">
+                      {getTranslatedGalleryName(img.name)}
+                    </Badge>
                   </Carousel.Caption>
                 </Carousel.Item>
               ))}
@@ -207,7 +213,6 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
         </Card>
       </Container>
 
-      {/* ===== ПРОМО-СЕКЦИЯ ===== */}
       <Container className="mb-5">
         <Card
           className="text-white border-0"
@@ -217,30 +222,29 @@ function HomePage({ title = "Best Furniture For Your Interior" }) {
           }}
         >
           <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-5">
-            <h1 className="display-3 fw-bold text-warning">50% OFF</h1>
-            <h2 className="display-5 mb-3">Weekend Trendy Sofa</h2>
+            <h1 className="display-3 fw-bold text-warning">50% {t('off')}</h1>
+            <h2 className="display-5 mb-3">{t('weekendTrendySofa')}</h2>
             <p className="lead mb-4">
-              Contrary to popular belief, Lorem Ipsum is not simply random text.
+              {t('heroLine1')} {t('heroLine2')}
             </p>
             <Button as={Link} to="/catalog" variant="warning" size="lg">
-              View Items
+              {t('viewItems')}
             </Button>
           </Card.Body>
         </Card>
       </Container>
 
-      {/* ===== КАРТА ===== */}
       <Container className="mb-5">
         <Card className="shadow-sm">
           <Card.Body>
-            <h2 className="text-center mb-4">📍 Location</h2>
+            <h2 className="text-center mb-4">{t('location')}</h2>
             <div
               className="d-flex align-items-center justify-content-center bg-light rounded"
               style={{ height: '400px' }}
             >
               <div className="text-center">
                 <div className="fs-1">🗺️</div>
-                <p className="text-muted">Карта: Minsk, Nemiga 5</p>
+                <p className="text-muted">{t('locationAddress')}</p>
               </div>
             </div>
           </Card.Body>

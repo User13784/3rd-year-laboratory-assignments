@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getCurrentUser, isAuthenticated as checkAuth, isAdmin as checkAdmin } from '../utils/auth';
+import { getCurrentUser } from '../utils/auth';
 
 const AuthContext = createContext(null);
 

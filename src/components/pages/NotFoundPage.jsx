@@ -1,8 +1,11 @@
 import React from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 function NotFoundPage() {
+  const { t } = useLanguage();
+
   return (
     <Container className="py-5">
       <Row className="justify-content-center">
@@ -20,20 +23,12 @@ function NotFoundPage() {
             404
           </h1>
 
-          <h2 className="mb-3">Страница не найдена</h2>
-
-          <p className="text-muted mb-4">
-            Извините, страница, которую вы ищете,
-            не существует или была перемещена.
-          </p>
+          <h2 className="mb-3">{t('notFoundTitle')}</h2>
+          <p className="text-muted mb-4">{t('notFoundText')}</p>
 
           <div className="d-flex justify-content-center gap-3 flex-wrap">
-            <Button as={Link} to="/" variant="primary" size="lg">
-              🏠 На главную
-            </Button>
-            <Button as={Link} to="/catalog" variant="outline-primary" size="lg">
-              🛍️ В каталог
-            </Button>
+            <Button as={Link} to="/" variant="primary" size="lg">{t('goHome')}</Button>
+            <Button as={Link} to="/catalog" variant="outline-primary" size="lg">{t('goToCatalogBtn')}</Button>
           </div>
         </Col>
       </Row>

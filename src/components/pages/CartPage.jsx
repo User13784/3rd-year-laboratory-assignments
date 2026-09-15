@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 function CartPage() {
+  const { t, lang } = useLanguage();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCart();
-  }, []);
+  }, [lang]);
 
   const loadCart = async () => {
     try {
@@ -44,55 +46,50 @@ function CartPage() {
   };
 
   const getTranslatedName = (name) => {
-    const lang = localStorage.getItem('language') || 'en';
+    const currentLang = lang || localStorage.getItem('language') || 'en';
     if (!name) return 'Product';
     if (typeof name === 'string') return name;
-    return name[lang] || name.en || 'Product';
+    return name[currentLang] || name.en || 'Product';
   };
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + (item.price * item.quantity), 0
-  );
+  const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // ===== ЗАГРУЗКА =====
   if (loading) {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Загрузка корзины...</p>
+        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }
 
-  // ===== ПУСТАЯ КОРЗИНА =====
   if (cartItems.length === 0) {
     return (
       <Container className="text-center py-5">
         <Alert variant="info">
-          <h2>🛍️ Cart is empty</h2>
-          <p>Add items to cart to checkout</p>
+          <h2>{t('emptyCart')}</h2>
+          <p>{t('emptyCartHint')}</p>
         </Alert>
         <Button as={Link} to="/catalog" variant="primary" size="lg">
-          🛍️ Go to catalog
+          {t('goToCatalog')}
         </Button>
       </Container>
     );
   }
 
-  // ===== КОРЗИНА С ТОВАРАМИ =====
   return (
     <Container className="py-4">
-      <h1 className="mb-4 text-center">🛒 Shopping Cart</h1>
+      <h1 className="mb-4 text-center">{t('shoppingCart')}</h1>
 
       <Table striped bordered hover responsive>
         <thead className="table-dark">
           <tr>
-            <th>Product</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Total</th>
-            <th>Actions</th>
+            <th>{t('product')}</th>
+            <th>{t('name')}</th>
+            <th>{t('price')}</th>
+            <th>{t('quantity')}</th>
+            <th>{t('total')}</th>
+            <th>{t('actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -110,56 +107,29 @@ function CartPage() {
               <td>£{item.price.toFixed(2)}</td>
               <td>
                 <div className="d-flex align-items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  >
-                    −
-                  </Button>
-                  <Badge bg="secondary" className="fs-6">
-                    {item.quantity}
-                  </Badge>
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  >
-                    +
-                  </Button>
+                  <Button size="sm" variant="outline-secondary" onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</Button>
+                  <Badge bg="secondary" className="fs-6">{item.quantity}</Badge>
+                  <Button size="sm" variant="outline-secondary" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</Button>
                 </div>
               </td>
-              <td className="fw-bold text-primary">
-                £{(item.price * item.quantity).toFixed(2)}
-              </td>
+              <td className="fw-bold text-primary">£{(item.price * item.quantity).toFixed(2)}</td>
               <td>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => removeItem(item.id)}
-                  title="Удалить товар"
-                >
-                  🗑️
-                </Button>
+                <Button size="sm" variant="danger" onClick={() => removeItem(item.id)}>🗑️</Button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      {/* ===== ИТОГО ===== */}
       <Alert variant="success" className="text-end">
-        <h3 className="mb-0">Total: £{total.toFixed(2)}</h3>
+        <h3 className="mb-0">{t('total')}: £{total.toFixed(2)}</h3>
       </Alert>
 
-      {/* ===== КНОПКИ ===== */}
       <div className="d-flex justify-content-between flex-wrap gap-2">
         <Button as={Link} to="/catalog" variant="outline-secondary" size="lg">
-          ← Continue shopping
+          {t('continueShopping')}
         </Button>
-        <Button variant="success" size="lg">
-          ✅ Checkout
-        </Button>
+        <Button variant="success" size="lg">{t('checkout')}</Button>
       </div>
     </Container>
   );

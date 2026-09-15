@@ -4,20 +4,21 @@ import {
   Row,
   Col,
   Card,
-  ListGroup,
   Badge,
   Alert,
   Spinner
 } from 'react-bootstrap';
 import { api } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 function FeedbackPage() {
+  const { t, lang } = useLanguage();
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadFeedback();
-  }, []);
+  }, [lang]);
 
   const loadFeedback = async () => {
     try {
@@ -30,17 +31,17 @@ function FeedbackPage() {
   };
 
   const getTranslatedText = (text) => {
-    const lang = localStorage.getItem('language') || 'en';
+    const currentLang = lang || localStorage.getItem('language') || 'en';
     if (!text) return '';
     if (typeof text === 'string') return text;
-    return text[lang] || text.en || '';
+    return text[currentLang] || text.en || '';
   };
 
   const getTranslatedProductName = (name) => {
-    const lang = localStorage.getItem('language') || 'en';
+    const currentLang = lang || localStorage.getItem('language') || 'en';
     if (!name) return 'Product';
     if (typeof name === 'string') return name;
-    return name[lang] || name.en || 'Product';
+    return name[currentLang] || name.en || 'Product';
   };
 
   const generateStars = (rating) => {
@@ -66,12 +67,11 @@ function FeedbackPage() {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Загрузка отзывов...</p>
+        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }
 
-  // ===== СРЕДНИЙ РЕЙТИНГ =====
   const avgRating = feedback.length > 0
     ? (feedback.reduce((sum, r) => sum + (r.rating || 0), 0) / feedback.length).toFixed(1)
     : 0;
@@ -79,43 +79,108 @@ function FeedbackPage() {
   return (
     <Container className="py-4">
       <div className="text-center mb-4">
-        <h1 className="display-5">⭐ Customer Reviews</h1>
-        <p className="text-muted">Share your opinion about products</p>
+        <h1 className="display-5">{t('reviewsTitle')}</h1>
+        <p className="text-muted">{t('reviewsSubtitle')}</p>
 
-        {/* Статистика */}
         {feedback.length > 0 && (
-          <div className="d-flex justify-content-center gap-3 flex-wrap">
-            <Badge bg="primary" className="fs-6">
-              Всего отзывов: {feedback.length}
-            </Badge>
-            <Badge bg="warning" text="dark" className="fs-6">
-              Средний рейтинг: {avgRating} ⭐
-            </Badge>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginTop: '15px'
+            }}
+          >
+            <span
+              style={{
+                backgroundColor: '#264A51',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '600',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                lineHeight: '1.4'
+              }}
+            >
+              {t('totalReviews')} {feedback.length}
+            </span>
+
+            <span
+              style={{
+                backgroundColor: '#FFB800',
+                color: '#264A51',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '600',
+                whiteSpace: 'nowrap',
+                display: 'inline-block',
+                lineHeight: '1.4'
+              }}
+            >
+              {t('avgRating')} {avgRating} ⭐
+            </span>
           </div>
         )}
       </div>
 
       {feedback.length === 0 ? (
         <Alert variant="info" className="text-center">
-          <h4>💬 No reviews yet</h4>
-          <p>Be the first to leave a review!</p>
+          <h4>{t('noReviews')}</h4>
+          <p>{t('noReviewsHint')}</p>
         </Alert>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
           {feedback.map(review => (
             <Col key={review.id}>
               <Card className="h-100 shadow-sm">
-                <Card.Header className="d-flex justify-content-between align-items-center">
-                  <div className="d-flex align-items-center">
+                <Card.Header
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '10px',
+                    flexWrap: 'wrap'
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px'
+                    }}
+                  >
                     <div
-                      className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
-                      style={{ width: '40px', height: '40px', fontWeight: 'bold' }}
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#264A51',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 'bold',
+                        flexShrink: 0
+                      }}
                     >
                       {(review.userNickname || 'U').charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div className="fw-bold">{review.userNickname || 'Пользователь'}</div>
-                      <small className="text-muted">
+                      <div
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: '14px',
+                          color: '#264A51'
+                        }}
+                      >
+                        {review.userNickname || 'User'}
+                      </div>
+                      <small style={{ color: '#5a7c85', fontSize: '11px' }}>
                         {formatDate(review.createdAt)}
                       </small>
                     </div>
@@ -123,21 +188,56 @@ function FeedbackPage() {
                 </Card.Header>
 
                 <Card.Body>
-                  <Badge bg="info" className="mb-2">
-                    📦 {getTranslatedProductName(review.productName)}
-                  </Badge>
+                  <div style={{ marginBottom: '10px' }}>
+                    <span
+                      style={{
+                        backgroundColor: '#71B3C6',
+                        color: 'white',
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        display: 'inline-block',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      📦 {getTranslatedProductName(review.productName)}
+                    </span>
+                  </div>
 
-                  <div className="text-warning fs-5 mb-2">
+                  <div
+                    style={{
+                      color: '#FFB800',
+                      fontSize: '18px',
+                      marginBottom: '10px',
+                      letterSpacing: '2px'
+                    }}
+                  >
                     {generateStars(review.rating)}
                   </div>
 
-                  <Card.Text>
+                  {/* Текст отзыва */}
+                  <Card.Text
+                    style={{
+                      fontSize: '14px',
+                      lineHeight: '1.6',
+                      color: '#333'
+                    }}
+                  >
                     {getTranslatedText(review.text)}
                   </Card.Text>
                 </Card.Body>
 
-                <Card.Footer className="text-muted">
-                  <small>Rating: {review.rating} / 5</small>
+                <Card.Footer
+                  style={{
+                    backgroundColor: '#f8fafc',
+                    color: '#5a7c85',
+                    fontSize: '12px'
+                  }}
+                >
+                  <span>
+                    {t('rating')}: {review.rating} / 5
+                  </span>
                 </Card.Footer>
               </Card>
             </Col>

@@ -1,22 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Badge } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useNotification } from '../../hooks/useNotification';
 import Notification from '../common/Notification';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { t, lang } = useLanguage();
   const [isFavorite, setIsFavorite] = useState(product.isFavorite || false);
   const { notification, showSuccess, showError, showWarning, hideNotification } = useNotification();
 
+  const getTranslatedName = () => {
+    const currentLang = lang || localStorage.getItem('language') || 'en';
+    if (!product.name) return 'Product';
+    if (typeof product.name === 'string') return product.name;
+    return product.name[currentLang] || product.name.en || 'Product';
+  };
+
+  const getTranslatedCategory = () => {
+    const catMap = {
+      sofa: 'catSofa',
+      living: 'catLiving',
+      kitchen: 'catKitchen',
+      bedroom: 'catBedroom',
+      bathroom: 'catBathroom',
+      decor: 'catDecor',
+      ceramics: 'catCeramics'
+    };
+    const key = catMap[product.category];
+    return key ? t(key) : (product.category || 'General');
+  };
+
   const requireAuth = (actionName) => {
     if (!isAuthenticated) {
-      showWarning(`🔒 Для "${actionName}" необходимо войти в аккаунт`);
+      showWarning(`🔒 ${t('loginRequired')}: "${actionName}"`);
       setTimeout(() => {
-        const goToLogin = window.confirm('Перейти на страницу входа?');
+        const goToLogin = window.confirm(t('goToLoginConfirm'));
         if (goToLogin) navigate('/register');
       }, 500);
       return false;
@@ -26,7 +49,7 @@ function ProductCard({ product }) {
 
   const toggleFavorite = async (e) => {
     e.stopPropagation();
-    if (!requireAuth('добавления в избранное')) return;
+    if (!requireAuth(t('favorites'))) return;
 
     try {
       if (isFavorite) {
@@ -34,7 +57,7 @@ function ProductCard({ product }) {
         const favItem = favorites.find(f => f.productId === product.id);
         if (favItem) await api.removeFromFavorites(favItem.id);
         setIsFavorite(false);
-        showSuccess('❤️ Удалено из избранного');
+        showSuccess(`❤️ "${getTranslatedName()}" ${t('removedFromFavorites')}`);
       } else {
         await api.addToFavorites({
           productId: product.id,
@@ -45,17 +68,17 @@ function ProductCard({ product }) {
           rating: product.rating || 5
         });
         setIsFavorite(true);
-        showSuccess('❤️ Добавлено в избранное');
+        showSuccess(`❤️ "${getTranslatedName()}" ${t('addedToFavorites')}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      showError('Ошибка при работе с избранным');
+      showError(t('errorFavorite'));
     }
   };
 
   const addToCart = async (e) => {
     e.stopPropagation();
-    if (!requireAuth('добавления в корзину')) return;
+    if (!requireAuth(t('cart'))) return;
 
     try {
       await api.addToCart({
@@ -65,18 +88,11 @@ function ProductCard({ product }) {
         image: product.image,
         quantity: 1
       });
-      showSuccess(`🛒 "${getTranslatedName()}" добавлен в корзину!`);
+      showSuccess(`🛒 "${getTranslatedName()}" ${t('addedToCart')}`);
     } catch (error) {
       console.error('Error:', error);
-      showError('Ошибка добавления в корзину');
+      showError(t('errorCart'));
     }
-  };
-
-  const getTranslatedName = () => {
-    const lang = localStorage.getItem('language') || 'en';
-    if (!product.name) return 'Product';
-    if (typeof product.name === 'string') return product.name;
-    return product.name[lang] || product.name.en || 'Product';
   };
 
   const generateStars = (rating) => {
@@ -92,7 +108,7 @@ function ProductCard({ product }) {
 
   return (
     <>
-      <Card className="h-100 shadow-sm">
+      <Card className="h-100 shadow-sm product-card-bs">
         <div className="position-relative">
           <Card.Img
             variant="top"
@@ -107,43 +123,83 @@ function ProductCard({ product }) {
             size="sm"
             className="position-absolute top-0 end-0 m-2 rounded-circle"
             onClick={toggleFavorite}
-            style={{ width: '40px', height: '40px', padding: 0 }}
+            style={{
+              width: '40px',
+              height: '40px',
+              padding: 0,
+              zIndex: 10
+            }}
+            title={isFavorite ? t('favorites') : t('addToFavorites')}
           >
             {isFavorite ? '❤️' : '🤍'}
           </Button>
 
           {product.rating >= 4.5 && (
-            <Badge
-              bg="warning"
-              text="dark"
-              className="position-absolute top-0 start-0 m-2"
+            <span
+              className="position-absolute top-0 start-0 bg-warning text-dark fw-bold"
+              style={{
+                fontSize: '11px',
+                padding: '5px 10px',
+                borderRadius: '10px',
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                marginTop: '12px',
+                marginLeft: '12px',
+                zIndex: 5,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+              }}
             >
-              ⭐ Top
-            </Badge>
+              {t('topProduct')}
+            </span>
           )}
         </div>
 
         <Card.Body className="d-flex flex-column">
           <Card.Title className="fs-6">{getTranslatedName()}</Card.Title>
 
-          <Badge bg="info" className="align-self-start mb-2">
-            {product.category || 'General'}
-          </Badge>
+          <div style={{ marginBottom: '8px' }}>
+            <span
+              style={{
+                backgroundColor: '#71B3C6',
+                color: 'white',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: '600',
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                lineHeight: '1.4'
+              }}
+            >
+              {getTranslatedCategory()}
+            </span>
+          </div>
 
           <Card.Text className="text-primary fw-bold fs-5 mb-2">
             £{(product.price || 0).toFixed(2)}
           </Card.Text>
 
-          <div className="text-warning mb-2">
+          <div className="text-warning mb-2" style={{ letterSpacing: '2px' }}>
             {generateStars(product.rating)}
           </div>
 
-          <Badge
-            bg={product.inStock ? 'success' : 'danger'}
-            className="align-self-start mb-3"
-          >
-            {product.inStock ? '✓ In stock' : '✗ Out of stock'}
-          </Badge>
+          <div style={{ marginBottom: '12px' }}>
+            <span
+              style={{
+                backgroundColor: product.inStock ? '#2e7d32' : '#c62828',
+                color: 'white',
+                padding: '6px 12px',
+                borderRadius: '10px',
+                fontSize: '12px',
+                fontWeight: '600',
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                lineHeight: '1.4'
+              }}
+            >
+              {product.inStock ? t('inStock') : t('outOfStock')}
+            </span>
+          </div>
 
           <Button
             variant="primary"
@@ -151,12 +207,11 @@ function ProductCard({ product }) {
             onClick={addToCart}
             disabled={!product.inStock}
           >
-            🛒 Add to cart
+            🛒 {t('addToCart')}
           </Button>
         </Card.Body>
       </Card>
 
-      {/* ===== TOAST УВЕДОМЛЕНИЕ ===== */}
       <Notification
         show={notification.show}
         message={notification.message}

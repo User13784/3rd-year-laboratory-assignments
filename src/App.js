@@ -24,7 +24,6 @@ import RegisterPage from './components/pages/RegisterPage';
 import NotFoundPage from './components/pages/NotFoundPage';
 import './App.css';
 
-// ===== ШАПКА =====
 function Header() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { lang, toggleLanguage, t } = useLanguage();
@@ -44,7 +43,6 @@ function Header() {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="header-nav" />
         <Navbar.Collapse id="header-nav">
-          {/* ===== ЛЕВАЯ ЧАСТЬ ===== */}
           <Nav className="me-auto">
             {isAuthenticated ? (
               <>
@@ -92,18 +90,32 @@ function Header() {
             )}
           </Nav>
 
-          {/* ===== ПРАВАЯ ЧАСТЬ ===== */}
           <Nav className="align-items-center">
             <Nav.Link href="#">
               📧 {t('mailing')}
             </Nav.Link>
 
-            <Nav.Link as={Link} to="/cart">
-              🛒 {t('cart')}
-              <Badge bg="danger" pill className="ms-1">0</Badge>
-            </Nav.Link>
+            <Nav.Link as={Link} to="/cart" className="d-flex align-items-center">
+  🛒 {t('cart')}
+  <Badge
+    bg="danger"
+    pill
+    className="ms-1"
+    style={{
+      fontSize: '10px',
+      padding: '3px 6px',
+      minWidth: '18px',
+      height: '18px',
+      lineHeight: '1',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
+  >
+    0
+  </Badge>
+</Nav.Link>
 
-            {/* Кнопки языка и темы */}
             <ButtonGroup size="sm" className="ms-2">
               <Button variant="outline-light" onClick={toggleLanguage}>
                 {lang === 'ru' ? '🇬🇧 EN' : '🇷🇺 RU'}
@@ -119,7 +131,6 @@ function Header() {
   );
 }
 
-// ===== ГЛАВНЫЙ КОМПОНЕНТ =====
 function App() {
   const companyName = "Greenery";
   const mainTitle = "Best Furniture For Your Interior";
