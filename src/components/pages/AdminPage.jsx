@@ -1,70 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Table,
-  Badge,
-  Alert,
-  Spinner,
-  Tabs,
-  Tab,
-  Form,
-  InputGroup
+  Container, Row, Col, Card, Button, Table, Badge, Alert,
+  Spinner, Tabs, Tab, Form, InputGroup
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { Link } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import {
+  fetchProducts,
+  deleteProductAsync,
+  selectAllProducts,
+  selectProductsLoading
+} from '../../features/products/productsSlice';
+import {
+  fetchFeedback,
+  deleteFeedback,
+  selectFeedback,
+  selectFeedbackLoading
+} from '../../features/feedback/feedbackSlice';
+import { selectUser, selectIsAdmin, selectIsAuthenticated } from '../../features/auth/authSlice';
 import ProductCard from '../product/ProductCard';
 
 function AdminPage() {
-  const navigate = useNavigate();
-  const { user, isAuthenticated, isAdmin } = useAuth();
-  const { t } = useLanguage();
+  const dispatch = useAppDispatch();
 
-  const [products, setProducts] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [feedback, setFeedback] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // ===== REDUX STATE =====
+  const products = useAppSelector(selectAllProducts);
+  const productsLoading = useAppSelector(selectProductsLoading);
+  const feedback = useAppSelector(selectFeedback);
+  const feedbackLoading = useAppSelector(selectFeedbackLoading);
+  const user = useAppSelector(selectUser);
+  const isAdmin = useAppSelector(selectIsAdmin);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  // ===== LOCAL STATE =====
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  // ===== ЗАГРУЗКА =====
   useEffect(() => {
     if (isAdmin) {
-      loadAllData();
-    } else {
-      setLoading(false);
+      dispatch(fetchProducts());
+      dispatch(fetchFeedback());
     }
-  }, [isAdmin]);
+  }, [dispatch, isAdmin]);
 
-  const loadAllData = async () => {
-    setLoading(true);
-    try {
-      const [productsData, usersData, feedbackData] = await Promise.all([
-        api.getProducts(),
-        api.getUsers ? api.getUsers() : [],
-        api.getFeedback()
-      ]);
-      setProducts(productsData || []);
-      setUsers(usersData || []);
-      setFeedback(feedbackData || []);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-    setLoading(false);
-  };
-
+  // ===== ПРОВЕРКА ДОСТУПА =====
   if (!isAuthenticated) {
     return (
       <Container className="py-5">
         <Alert variant="warning" className="text-center">
-          <h2>🔒 {t('loginRequired')}</h2>
-          <p>{t('goToLoginConfirm')}</p>
+          <h2>🔒 Требуется вход</h2>
+          <p>Войдите в аккаунт для доступа к админ-панели</p>
           <Button as={Link} to="/register" variant="primary" size="lg">
-            {t('login')}
+            Войти
           </Button>
         </Alert>
       </Container>
@@ -75,53 +63,51 @@ function AdminPage() {
     return (
       <Container className="py-5">
         <Alert variant="danger" className="text-center">
-          <h2>⛔ Access Denied</h2>
-          <p>{t('adminRequired')}</p>
+          <h2>⛔ Доступ запрещён</h2>
+          <p>Эта страница доступна только администратору</p>
           <Button as={Link} to="/catalog" variant="primary" size="lg">
-            {t('goToCatalogBtn')}
+            В каталог
           </Button>
         </Alert>
       </Container>
     );
   }
 
-  if (loading) {
+  if (productsLoading || feedbackLoading) {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">{t('loadingProducts')}</p>
+        <p className="mt-3">Загрузка...</p>
       </Container>
     );
   }
 
+  // ===== УДАЛЕНИЕ =====
   const handleDeleteProduct = async (productId, productName) => {
-    const confirmDelete = window.confirm(`${t('confirmDelete')} "${productName}"?`);
-    if (!confirmDelete) return;
+    if (!window.confirm(`Удалить "${productName}"?`)) return;
 
     try {
-      await api.deleteProduct(productId);
-      await loadAllData();
-      alert('✅ ' + t('productsDeleted'));
+      await dispatch(deleteProductAsync(productId)).unwrap();
+      alert('✅ Товар удалён');
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ ' + t('errorDeleting'));
+      alert('❌ Ошибка удаления');
     }
   };
 
   const handleDeleteFeedback = async (feedbackId) => {
-    const confirmDelete = window.confirm(t('confirmDelete') + '?');
-    if (!confirmDelete) return;
+    if (!window.confirm('Удалить отзыв?')) return;
 
     try {
-      await api.deleteFeedback(feedbackId);
-      await loadAllData();
-      alert('✅ ' + t('productsDeleted'));
+      await dispatch(deleteFeedback(feedbackId)).unwrap();
+      alert('✅ Отзыв удалён');
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ ' + t('errorDeleting'));
+      alert('❌ Ошибка удаления');
     }
   };
 
+  // ===== ФИЛЬТРАЦИЯ =====
   const filteredProducts = products.filter(product => {
     const nameEn = product.name?.en || '';
     const nameRu = product.name?.ru || '';
@@ -130,10 +116,10 @@ function AdminPage() {
            nameRu.toLowerCase().includes(searchLower);
   });
 
+  // ===== СТАТИСТИКА =====
   const totalProducts = products.length;
   const inStockProducts = products.filter(p => p.inStock).length;
   const outOfStockProducts = products.filter(p => !p.inStock).length;
-  const totalUsers = users.length;
   const totalFeedback = feedback.length;
   const avgRating = feedback.length > 0
     ? (feedback.reduce((sum, r) => sum + (r.rating || 0), 0) / feedback.length).toFixed(1)
@@ -142,9 +128,10 @@ function AdminPage() {
 
   return (
     <Container fluid className="py-4">
+      {/* ===== ЗАГОЛОВОК ===== */}
       <div className="text-center mb-4">
         <h1 className="display-5">👑 Admin Panel</h1>
-        <p className="text-muted">Manage products, users and reviews</p>
+        <p className="text-muted">Manage products and reviews</p>
 
         <div
           style={{
@@ -163,7 +150,6 @@ function AdminPage() {
               borderRadius: '12px',
               fontSize: '15px',
               fontWeight: '700',
-              letterSpacing: '0.3px',
               whiteSpace: 'nowrap',
               boxShadow: '0 2px 10px rgba(255, 184, 0, 0.3)'
             }}
@@ -188,7 +174,7 @@ function AdminPage() {
                 <Card.Body>
                   <div className="fs-1">📦</div>
                   <h2 className="text-primary">{totalProducts}</h2>
-                  <p className="text-muted mb-0">{t('products')}</p>
+                  <p className="text-muted mb-0">Товаров</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -198,7 +184,7 @@ function AdminPage() {
                 <Card.Body>
                   <div className="fs-1">✅</div>
                   <h2 className="text-success">{inStockProducts}</h2>
-                  <p className="text-muted mb-0">{t('inStock')}</p>
+                  <p className="text-muted mb-0">В наличии</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -208,7 +194,7 @@ function AdminPage() {
                 <Card.Body>
                   <div className="fs-1">❌</div>
                   <h2 className="text-danger">{outOfStockProducts}</h2>
-                  <p className="text-muted mb-0">{t('outOfStock')}</p>
+                  <p className="text-muted mb-0">Нет в наличии</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -216,41 +202,31 @@ function AdminPage() {
             <Col xs={6} md={3}>
               <Card className="text-center shadow-sm h-100 border-info">
                 <Card.Body>
-                  <div className="fs-1">👥</div>
-                  <h2 className="text-info">{totalUsers}</h2>
-                  <p className="text-muted mb-0">Users</p>
+                  <div className="fs-1">💬</div>
+                  <h2 className="text-info">{totalFeedback}</h2>
+                  <p className="text-muted mb-0">Отзывов</p>
                 </Card.Body>
               </Card>
             </Col>
           </Row>
 
           <Row className="g-4">
-            <Col md={4}>
-              <Card className="text-center shadow-sm h-100">
-                <Card.Body>
-                  <div className="fs-1">💬</div>
-                  <h2 className="text-primary">{totalFeedback}</h2>
-                  <p className="text-muted mb-0">{t('reviews')}</p>
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col md={4}>
+            <Col md={6}>
               <Card className="text-center shadow-sm h-100">
                 <Card.Body>
                   <div className="fs-1">⭐</div>
                   <h2 className="text-warning">{avgRating} / 5</h2>
-                  <p className="text-muted mb-0">{t('avgRating')}</p>
+                  <p className="text-muted mb-0">Средний рейтинг</p>
                 </Card.Body>
               </Card>
             </Col>
 
-            <Col md={4}>
+            <Col md={6}>
               <Card className="text-center shadow-sm h-100">
                 <Card.Body>
                   <div className="fs-1">💰</div>
                   <h2 className="text-success">£{totalValue.toFixed(2)}</h2>
-                  <p className="text-muted mb-0">Total Value</p>
+                  <p className="text-muted mb-0">Общая стоимость</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -258,10 +234,7 @@ function AdminPage() {
 
           <div className="mt-4 text-center">
             <Button as={Link} to="/catalog" variant="primary" size="lg" className="m-1">
-              🛍️ {t('goToCatalog')}
-            </Button>
-            <Button variant="warning" size="lg" className="m-1" onClick={loadAllData}>
-              🔄 Reload
+              🛍️ В каталог
             </Button>
           </div>
         </Tab>
@@ -276,12 +249,15 @@ function AdminPage() {
                     <InputGroup.Text>🔍</InputGroup.Text>
                     <Form.Control
                       type="text"
-                      placeholder={t('searchPlaceholder')}
+                      placeholder="Поиск товаров..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     {searchTerm && (
-                      <Button variant="outline-secondary" onClick={() => setSearchTerm('')}>
+                      <Button
+                        variant="outline-secondary"
+                        onClick={() => setSearchTerm('')}
+                      >
                         ✖
                       </Button>
                     )}
@@ -289,7 +265,7 @@ function AdminPage() {
                 </Col>
                 <Col md={6} className="text-end">
                   <Badge bg="primary" className="fs-6">
-                    {filteredProducts.length} {t('of')} {products.length}
+                    {filteredProducts.length} из {products.length}
                   </Badge>
                 </Col>
               </Row>
@@ -297,14 +273,14 @@ function AdminPage() {
               <Table striped bordered hover responsive>
                 <thead className="table-dark">
                   <tr>
-                    <th>{t('id')}</th>
-                    <th>Image</th>
-                    <th>{t('name')}</th>
-                    <th>{t('category')}</th>
-                    <th>{t('price')}</th>
-                    <th>{t('rating')}</th>
-                    <th>{t('availability')}</th>
-                    <th className="text-center">{t('actions')}</th>
+                    <th>ID</th>
+                    <th>Фото</th>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Цена</th>
+                    <th>Рейтинг</th>
+                    <th>Наличие</th>
+                    <th className="text-center">Действия</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,7 +288,7 @@ function AdminPage() {
                     <tr>
                       <td colSpan="8" className="text-center py-4">
                         <Alert variant="info" className="mb-0">
-                          {t('noProducts')}
+                          Товары не найдены
                         </Alert>
                       </td>
                     </tr>
@@ -331,10 +307,12 @@ function AdminPage() {
                         <td>{product.name?.en}</td>
                         <td><Badge bg="info">{product.category}</Badge></td>
                         <td className="fw-bold">£{product.price}</td>
-                        <td className="text-warning">{'★'.repeat(Math.floor(product.rating))}</td>
+                        <td className="text-warning">
+                          {'★'.repeat(Math.floor(product.rating))}
+                        </td>
                         <td>
                           <Badge bg={product.inStock ? 'success' : 'danger'}>
-                            {product.inStock ? t('yes') : t('no')}
+                            {product.inStock ? 'Да' : 'Нет'}
                           </Badge>
                         </td>
                         <td className="text-center">
@@ -361,8 +339,7 @@ function AdminPage() {
             <Card.Body>
               {feedback.length === 0 ? (
                 <Alert variant="info" className="text-center mb-0">
-                  <h4>{t('noReviews')}</h4>
-                  <p>{t('noReviewsHint')}</p>
+                  <h4>💬 Пока нет отзывов</h4>
                 </Alert>
               ) : (
                 <Row xs={1} md={2} lg={3} className="g-3">
@@ -376,13 +353,19 @@ function AdminPage() {
                           </Badge>
                         </Card.Header>
                         <Card.Body>
-                          <Card.Text>{review.text?.en || review.text?.ru}</Card.Text>
+                          <Card.Text>
+                            {review.text?.ru || review.text?.en}
+                          </Card.Text>
                         </Card.Body>
                         <Card.Footer className="d-flex justify-content-between align-items-center">
                           <small className="text-muted">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </small>
-                          <Button size="sm" variant="danger" onClick={() => handleDeleteFeedback(review.id)}>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleDeleteFeedback(review.id)}
+                          >
                             🗑️
                           </Button>
                         </Card.Footer>
@@ -394,44 +377,9 @@ function AdminPage() {
             </Card.Body>
           </Card>
         </Tab>
-
-        {/* USERS */}
-        <Tab eventKey="users" title="👥 Users">
-          <Card className="shadow-sm">
-            <Card.Body>
-              {users.length === 0 ? (
-                <Alert variant="info" className="text-center mb-0">No users</Alert>
-              ) : (
-                <Table striped bordered hover responsive>
-                  <thead className="table-dark">
-                    <tr>
-                      <th>ID</th>
-                      <th>Email</th>
-                      <th>Name</th>
-                      <th>Role</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map(u => (
-                      <tr key={u.id}>
-                        <td>{u.id}</td>
-                        <td>{u.email}</td>
-                        <td>{u.firstName} {u.lastName}</td>
-                        <td>
-                          <Badge bg={u.role === 'admin' ? 'warning' : 'info'} text={u.role === 'admin' ? 'dark' : 'white'}>
-                            {u.role === 'admin' ? '👑 Admin' : '👤 User'}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              )}
-            </Card.Body>
-          </Card>
-        </Tab>
       </Tabs>
 
+      {/* ===== ПРЕВЬЮ ===== */}
       {activeTab === 'products' && filteredProducts.length > 0 && (
         <Container className="mt-4">
           <h4 className="text-center mb-3">Preview</h4>
