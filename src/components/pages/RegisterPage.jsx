@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Form, Button, Alert, Tab, Tabs } from 'react-bootstrap';
-import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { useAppDispatch } from '../../hooks/reduxHooks';
+import { loginSuccess } from '../../features/auth/authSlice';
 import { api } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
   const { t } = useLanguage();
   const [key, setKey] = useState('login');
 
@@ -21,24 +22,12 @@ function RegisterPage() {
   const [registerError, setRegisterError] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
 
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData(prev => ({ ...prev, [name]: value }));
-    setLoginError('');
-  };
-
-  const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterData(prev => ({ ...prev, [name]: value }));
-    setRegisterError('');
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
 
     if (!loginData.email || !loginData.password) {
-      setLoginError(t('fillFields'));
+      setLoginError('Заполните все поля');
       return;
     }
 
@@ -46,22 +35,23 @@ function RegisterPage() {
     try {
       const user = await api.loginUser(loginData.email);
       if (!user) {
-        setLoginError(t('userNotFound'));
+        setLoginError('Пользователь не найден');
         setLoginLoading(false);
         return;
       }
       if (user.password !== loginData.password) {
-        setLoginError(t('wrongPassword'));
+        setLoginError('Неверный пароль');
         setLoginLoading(false);
         return;
       }
-      login(user);
+
+      // ✅ Отправляем в Redux
+      dispatch(loginSuccess(user));
+
       navigate('/catalog');
-      alert(user.role === 'admin'
-        ? `${t('welcomeAdmin')}, ${user.firstName}!`
-        : `${t('welcomeUser')}, ${user.firstName}!`);
+      alert(`👑 Добро пожаловать, ${user.firstName}!`);
     } catch (error) {
-      setLoginError(t('loginError'));
+      setLoginError('Ошибка входа');
     }
     setLoginLoading(false);
   };
@@ -72,12 +62,12 @@ function RegisterPage() {
 
     if (!registerData.firstName || !registerData.lastName ||
         !registerData.email || !registerData.password) {
-      setRegisterError(t('fillFields'));
+      setRegisterError('Заполните все поля');
       return;
     }
 
     if (registerData.password.length < 6) {
-      setRegisterError(t('passwordMin'));
+      setRegisterError('Пароль должен быть не менее 6 символов');
       return;
     }
 
@@ -85,7 +75,7 @@ function RegisterPage() {
     try {
       const existing = await api.loginUser(registerData.email);
       if (existing) {
-        setRegisterError(t('emailTaken'));
+        setRegisterError('Email занят');
         setRegisterLoading(false);
         return;
       }
@@ -98,11 +88,14 @@ function RegisterPage() {
       };
 
       const created = await api.registerUser(newUser);
-      login(created);
+
+      // ✅ Отправляем в Redux
+      dispatch(loginSuccess(created));
+
       navigate('/catalog');
-      alert(`${t('registerSuccess')}, ${created.firstName}!`);
+      alert(`✅ Регистрация успешна! Добро пожаловать, ${created.firstName}!`);
     } catch (error) {
-      setRegisterError(t('registerError'));
+      setRegisterError('Ошибка регистрации');
     }
     setRegisterLoading(false);
   };
@@ -111,72 +104,75 @@ function RegisterPage() {
     <Container className="py-5">
       <Card className="mx-auto shadow" style={{ maxWidth: '500px' }}>
         <Card.Header className="text-center bg-primary text-white">
-          <h3 className="mb-0">{t('account')}</h3>
+          <h3 className="mb-0">🔐 {t('account') || 'Аккаунт'}</h3>
         </Card.Header>
-
         <Card.Body>
-          <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-4 justify-content-center">
-            <Tab eventKey="login" title={t('loginTab')}>
+          <Tabs activeKey={key} onSelect={setKey} className="mb-4 justify-content-center">
+            <Tab eventKey="login" title="Вход">
               <Form onSubmit={handleLogin}>
                 {loginError && <Alert variant="danger">{loginError}</Alert>}
-
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('email')}</Form.Label>
+                  <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    name="email"
-                    placeholder="example@mail.com"
                     value={loginData.email}
-                    onChange={handleLoginChange}
+                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                   />
                 </Form.Group>
-
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('password')}</Form.Label>
+                  <Form.Label>Пароль</Form.Label>
                   <Form.Control
                     type="password"
-                    name="password"
                     value={loginData.password}
-                    onChange={handleLoginChange}
+                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                   />
                 </Form.Group>
-
                 <Button variant="primary" type="submit" className="w-100" disabled={loginLoading}>
-                  {loginLoading ? t('loadingLogin') : t('loginBtn')}
+                  {loginLoading ? '⏳ Вход...' : 'Войти'}
                 </Button>
-
                 <div className="text-center mt-3 text-muted small">
-                  {t('testAdmin')}: <strong>admin@example.com</strong> / <strong>admin123</strong>
+                  Тестовый админ: <strong>admin@example.com</strong> / <strong>admin123</strong>
                 </div>
               </Form>
             </Tab>
 
-            <Tab eventKey="register" title={t('registerTab')}>
+            <Tab eventKey="register" title="Регистрация">
               <Form onSubmit={handleRegister}>
                 {registerError && <Alert variant="danger">{registerError}</Alert>}
-
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('firstName')}</Form.Label>
-                  <Form.Control type="text" name="firstName" value={registerData.firstName} onChange={handleRegisterChange} />
+                  <Form.Label>Имя</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={registerData.firstName}
+                    onChange={(e) => setRegisterData({ ...registerData, firstName: e.target.value })}
+                  />
                 </Form.Group>
-
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('lastName')}</Form.Label>
-                  <Form.Control type="text" name="lastName" value={registerData.lastName} onChange={handleRegisterChange} />
+                  <Form.Label>Фамилия</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={registerData.lastName}
+                    onChange={(e) => setRegisterData({ ...registerData, lastName: e.target.value })}
+                  />
                 </Form.Group>
-
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('email')}</Form.Label>
-                  <Form.Control type="email" name="email" value={registerData.email} onChange={handleRegisterChange} />
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={registerData.email}
+                    onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                  />
                 </Form.Group>
-
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('password')}</Form.Label>
-                  <Form.Control type="password" name="password" value={registerData.password} onChange={handleRegisterChange} />
+                  <Form.Label>Пароль</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                  />
                 </Form.Group>
-
                 <Button variant="success" type="submit" className="w-100" disabled={registerLoading}>
-                  {registerLoading ? t('loadingRegister') : t('registerBtn')}
+                  {registerLoading ? '⏳ Регистрация...' : 'Зарегистрироваться'}
                 </Button>
               </Form>
             </Tab>
