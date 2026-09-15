@@ -1,15 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import {
-  Navbar,
-  Nav,
-  Container,
-  Button,
-  Badge,
-  Dropdown,
-  ButtonGroup
+  Navbar, Nav, Container, Button, Badge, ButtonGroup
 } from 'react-bootstrap';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { useAppDispatch, useAppSelector } from './hooks/reduxHooks';
+import {
+  selectIsAuthenticated,
+  selectIsAdmin,
+  selectUser,
+  logout
+} from './features/auth/authSlice';
+import { selectCartCount } from './features/cart/cartSlice';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/layout/Sidebar';
@@ -24,14 +26,23 @@ import RegisterPage from './components/pages/RegisterPage';
 import NotFoundPage from './components/pages/NotFoundPage';
 import './App.css';
 
+// ===== ШАПКА =====
 function Header() {
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  const { lang, toggleLanguage, t } = useLanguage();
+  const dispatch = useAppDispatch();
+  const { t } = useTranslation();
+  const { lang, toggleLanguage } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
 
+  // ===== REDUX STATE =====
+  const user = useAppSelector(selectUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isAdmin = useAppSelector(selectIsAdmin);
+  const cartCount = useAppSelector(selectCartCount);
+
   const handleLogout = () => {
-    if (window.confirm(t('logoutConfirm'))) {
-      logout();
+    if (window.confirm('Выйти из аккаунта?')) {
+      dispatch(logout());
+      window.location.href = '/';
     }
   };
 
@@ -55,66 +66,32 @@ function Header() {
                     className="me-2"
                     style={{ filter: 'brightness(0) invert(1)' }}
                   />
-                  {user.firstName || user.email}
+                  {user?.firstName || user?.email}
                   {isAdmin && <Badge bg="warning" text="dark" className="ms-2">👑 Admin</Badge>}
                 </Navbar.Text>
                 <Button variant="outline-light" size="sm" onClick={handleLogout}>
-                  🚪 {t('logout')}
+                  🚪 Выйти
                 </Button>
               </>
             ) : (
               <>
                 <Nav.Link as={Link} to="/register">
-                  <img
-                    src="/assets/icons/human.png"
-                    alt="login"
-                    width="18"
-                    height="18"
-                    className="me-1"
-                    style={{ filter: 'brightness(0) invert(1)' }}
-                  />
-                  {t('login')}
+                  👤 {t('login')}
                 </Nav.Link>
                 <Nav.Link as={Link} to="/register">
-                  <img
-                    src="/assets/icons/door.png"
-                    alt="signup"
-                    width="18"
-                    height="18"
-                    className="me-1"
-                    style={{ filter: 'brightness(0) invert(1)' }}
-                  />
-                  {t('signup')}
+                  🚪 {t('signup')}
                 </Nav.Link>
               </>
             )}
           </Nav>
 
           <Nav className="align-items-center">
-            <Nav.Link href="#">
-              📧 {t('mailing')}
+            <Nav.Link as={Link} to="/cart">
+              🛒 {t('cart')}
+              {cartCount > 0 && (
+                <Badge bg="danger" pill className="ms-1">{cartCount}</Badge>
+              )}
             </Nav.Link>
-
-            <Nav.Link as={Link} to="/cart" className="d-flex align-items-center">
-  🛒 {t('cart')}
-  <Badge
-    bg="danger"
-    pill
-    className="ms-1"
-    style={{
-      fontSize: '10px',
-      padding: '3px 6px',
-      minWidth: '18px',
-      height: '18px',
-      lineHeight: '1',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}
-  >
-    0
-  </Badge>
-</Nav.Link>
 
             <ButtonGroup size="sm" className="ms-2">
               <Button variant="outline-light" onClick={toggleLanguage}>
@@ -131,6 +108,7 @@ function Header() {
   );
 }
 
+// ===== ГЛАВНЫЙ КОМПОНЕНТ =====
 function App() {
   const companyName = "Greenery";
   const mainTitle = "Best Furniture For Your Interior";
@@ -138,27 +116,25 @@ function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AuthProvider>
-          <Router>
-            <div className="app-container d-flex">
-              <Sidebar companyName={companyName} />
-              <main className="main-content flex-grow-1 p-3">
-                <Header />
-                <Routes>
-                  <Route path="/" element={<HomePage title={mainTitle} />} />
-                  <Route path="/catalog" element={<CatalogPage />} />
-                  <Route path="/cart" element={<CartPage />} />
-                  <Route path="/favorites" element={<FavoritesPage />} />
-                  <Route path="/feedback" element={<FeedbackPage />} />
-                  <Route path="/admin" element={<AdminPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
-                <Footer />
-              </main>
-            </div>
-          </Router>
-        </AuthProvider>
+        <Router>
+          <div className="app-container d-flex">
+            <Sidebar companyName={companyName} />
+            <main className="main-content flex-grow-1 p-3">
+              <Header />
+              <Routes>
+                <Route path="/" element={<HomePage title={mainTitle} />} />
+                <Route path="/catalog" element={<CatalogPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/feedback" element={<FeedbackPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+              <Footer />
+            </main>
+          </div>
+        </Router>
       </LanguageProvider>
     </ThemeProvider>
   );
