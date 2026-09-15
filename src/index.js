@@ -1,65 +1,22 @@
-import 'bootstrap/dist/css/bootstrap.min.css';   
-import './custom-bootstrap.css';                 
-import './index.css';                            
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './custom-bootstrap.css';
+import './index.css';
+import './i18n/i18n';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
-function initMobileMenu() {
-  const burger = document.getElementById('burgerMenu');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const overlay = document.getElementById('mobileOverlay');
-
-  if (!burger || !mobileMenu || !overlay) {
-    setTimeout(initMobileMenu, 100);
-    return;
-  }
-
-  function toggleMenu() {
-    burger.classList.toggle('active');
-    mobileMenu.classList.toggle('active');
-    overlay.classList.toggle('active');
-    document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-  }
-
-  function closeMenu() {
-    burger.classList.remove('active');
-    mobileMenu.classList.remove('active');
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  burger.addEventListener('click', toggleMenu);
-  overlay.addEventListener('click', closeMenu);
-
-  mobileMenu.querySelectorAll('.menu-item').forEach(link => {
-    link.addEventListener('click', closeMenu);
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMenu();
-  });
-
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 780) {
-      closeMenu();
-    }
-  });
-}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initMobileMenu);
-} else {
-  initMobileMenu();
-}
-
 
 reportWebVitals();
