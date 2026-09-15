@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Container, Table, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
   fetchCart,
@@ -11,19 +12,16 @@ import {
   selectCartLoading
 } from '../../features/cart/cartSlice';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
-import { useLanguage } from '../../context/LanguageContext';
 
 function CartPage() {
   const dispatch = useAppDispatch();
-  const { t, lang } = useLanguage();
+  const { t, i18n } = useTranslation();
 
-  // ===== REDUX STATE =====
   const cartItems = useAppSelector(selectCartItems);
   const total = useAppSelector(selectCartTotal);
   const loading = useAppSelector(selectCartLoading);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  // ===== ЗАГРУЗКА =====
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchCart());
@@ -43,47 +41,44 @@ function CartPage() {
   };
 
   const getTranslatedName = (name) => {
-    const currentLang = lang || localStorage.getItem('language') || 'en';
-    if (!name) return 'Product';
+    const lang = i18n.language || 'ru';
+    if (!name) return t('product');
     if (typeof name === 'string') return name;
-    return name[currentLang] || name.en || 'Product';
+    return name[lang] || name.en || t('product');
   };
 
-  // ===== НЕ АВТОРИЗОВАН =====
   if (!isAuthenticated) {
     return (
       <Container className="text-center py-5">
         <Alert variant="warning">
-          <h2>🔒 Требуется вход</h2>
-          <p>Для просмотра корзины необходимо войти в аккаунт</p>
+          <h2>🔒 {t('loginRequired')}</h2>
+          <p>{t('cartLoginRequired')}</p>
         </Alert>
         <Button as={Link} to="/register" variant="primary" size="lg">
-          👤 Войти
+          👤 {t('login')}
         </Button>
       </Container>
     );
   }
 
-  // ===== ЗАГРУЗКА =====
   if (loading) {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Загрузка корзины...</p>
+        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }
 
-  // ===== ПУСТАЯ КОРЗИНА =====
   if (cartItems.length === 0) {
     return (
       <Container className="text-center py-5">
         <Alert variant="info">
-          <h2>🛍️ Корзина пуста</h2>
-          <p>Добавьте товары в корзину, чтобы оформить заказ</p>
+          <h2>{t('emptyCart')}</h2>
+          <p>{t('emptyCartHint')}</p>
         </Alert>
         <Button as={Link} to="/catalog" variant="primary" size="lg">
-          🛍️ В каталог
+          {t('goToCatalog')}
         </Button>
       </Container>
     );
@@ -91,17 +86,17 @@ function CartPage() {
 
   return (
     <Container className="py-4">
-      <h1 className="mb-4 text-center">🛒 Корзина покупок</h1>
+      <h1 className="mb-4 text-center">{t('shoppingCart')}</h1>
 
       <Table striped bordered hover responsive>
         <thead className="table-dark">
           <tr>
-            <th>Товар</th>
-            <th>Название</th>
-            <th>Цена</th>
-            <th>Количество</th>
-            <th>Сумма</th>
-            <th>Действия</th>
+            <th>{t('product')}</th>
+            <th>{t('name')}</th>
+            <th>{t('price')}</th>
+            <th>{t('quantity')}</th>
+            <th>{t('total')}</th>
+            <th>{t('actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -140,11 +135,7 @@ function CartPage() {
                 £{(item.price * item.quantity).toFixed(2)}
               </td>
               <td>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => removeItem(item.id)}
-                >
+                <Button size="sm" variant="danger" onClick={() => removeItem(item.id)}>
                   🗑️
                 </Button>
               </td>
@@ -154,14 +145,14 @@ function CartPage() {
       </Table>
 
       <Alert variant="success" className="text-end">
-        <h3 className="mb-0">Итого: £{total.toFixed(2)}</h3>
+        <h3 className="mb-0">{t('total')}: £{total.toFixed(2)}</h3>
       </Alert>
 
       <div className="d-flex justify-content-between flex-wrap gap-2">
         <Button as={Link} to="/catalog" variant="outline-secondary" size="lg">
-          ← Продолжить покупки
+          {t('continueShopping')}
         </Button>
-        <Button variant="success" size="lg">✅ Оформить заказ</Button>
+        <Button variant="success" size="lg">{t('checkout')}</Button>
       </div>
     </Container>
   );

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Nav, Navbar, Container } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../hooks/reduxHooks';
 import { selectIsAdmin } from '../../features/auth/authSlice';
-import { useLanguage } from '../../context/LanguageContext';
 
 function Sidebar({ companyName = "Greenery" }) {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const isAdmin = useAppSelector(selectIsAdmin);
 
   const menuItems = [
@@ -54,7 +54,6 @@ function Sidebar({ companyName = "Greenery" }) {
             </Nav.Link>
           ))}
 
-          {/* Ссылка на админку только для админа */}
           {isAdmin && (
             <Nav.Link
               as={NavLink}
@@ -69,7 +68,7 @@ function Sidebar({ companyName = "Greenery" }) {
                 className="mb-1"
                 style={{ filter: 'brightness(0) invert(0.85)' }}
               />
-              <span style={{ fontSize: '12px' }}>Admin</span>
+              <span style={{ fontSize: '12px' }}>{t('admin')}</span>
             </Nav.Link>
           )}
         </Nav>

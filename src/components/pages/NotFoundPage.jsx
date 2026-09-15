@@ -1,10 +1,10 @@
 import React from 'react';
 import { Container, Button, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 function NotFoundPage() {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
 
   return (
     <Container className="py-5">

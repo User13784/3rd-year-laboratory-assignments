@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { updateProductAsync } from '../../features/products/productsSlice';
 
 function EditProductModal({ product, isOpen, onClose }) {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     nameEn: '',
@@ -21,7 +23,6 @@ function EditProductModal({ product, isOpen, onClose }) {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
-  // Заполняем форму при открытии
   useEffect(() => {
     if (product) {
       setFormData({
@@ -44,11 +45,9 @@ function EditProductModal({ product, isOpen, onClose }) {
 
   const validate = () => {
     const errs = {};
-    if (!formData.nameEn.trim()) errs.nameEn = 'Введите название (EN)';
-    if (!formData.nameRu.trim()) errs.nameRu = 'Введите название (RU)';
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      errs.price = 'Цена должна быть больше 0';
-    }
+    if (!formData.nameEn.trim()) errs.nameEn = 'Required';
+    if (!formData.nameRu.trim()) errs.nameRu = 'Required';
+    if (!formData.price || parseFloat(formData.price) <= 0) errs.price = 'Must be > 0';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -59,9 +58,7 @@ function EditProductModal({ product, isOpen, onClose }) {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -89,24 +86,22 @@ function EditProductModal({ product, isOpen, onClose }) {
       setTimeout(() => onClose(), 1000);
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Ошибка обновления товара');
+      alert('❌ ' + t('errorUpdating'));
     }
   };
 
   return (
     <Modal show={isOpen} onHide={onClose} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>✏️ Редактировать товар</Modal.Title>
+        <Modal.Title>{t('editProductTitle')}</Modal.Title>
       </Modal.Header>
 
       <Form onSubmit={handleSubmit} noValidate>
         <Modal.Body>
-          {success && (
-            <Alert variant="success">✅ Товар обновлён!</Alert>
-          )}
+          {success && <Alert variant="success">✅ {t('productUpdated')}</Alert>}
 
           <Form.Group className="mb-3">
-            <Form.Label>Название (EN) *</Form.Label>
+            <Form.Label>{t('nameEn')} *</Form.Label>
             <Form.Control
               type="text"
               name="nameEn"
@@ -118,7 +113,7 @@ function EditProductModal({ product, isOpen, onClose }) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Название (RU) *</Form.Label>
+            <Form.Label>{t('nameRu')} *</Form.Label>
             <Form.Control
               type="text"
               name="nameRu"
@@ -130,7 +125,7 @@ function EditProductModal({ product, isOpen, onClose }) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Цена (£) *</Form.Label>
+            <Form.Label>{t('price')} *</Form.Label>
             <Form.Control
               type="number"
               name="price"
@@ -144,20 +139,20 @@ function EditProductModal({ product, isOpen, onClose }) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Категория</Form.Label>
+            <Form.Label>{t('category')}</Form.Label>
             <Form.Select name="category" value={formData.category} onChange={handleChange}>
-              <option value="sofa">Диваны</option>
-              <option value="living">Гостиная</option>
-              <option value="kitchen">Кухня</option>
-              <option value="bedroom">Спальня</option>
-              <option value="bathroom">Ванная</option>
-              <option value="decor">Декор</option>
-              <option value="ceramics">Керамика</option>
+              <option value="sofa">{t('catSofa')}</option>
+              <option value="living">{t('catLiving')}</option>
+              <option value="kitchen">{t('catKitchen')}</option>
+              <option value="bedroom">{t('catBedroom')}</option>
+              <option value="bathroom">{t('catBathroom')}</option>
+              <option value="decor">{t('catDecor')}</option>
+              <option value="ceramics">{t('catCeramics')}</option>
             </Form.Select>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>URL изображения</Form.Label>
+            <Form.Label>{t('imageUrl')}</Form.Label>
             <Form.Control
               type="text"
               name="image"
@@ -167,7 +162,7 @@ function EditProductModal({ product, isOpen, onClose }) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Описание (EN)</Form.Label>
+            <Form.Label>{t('descriptionEn')}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -178,7 +173,7 @@ function EditProductModal({ product, isOpen, onClose }) {
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Описание (RU)</Form.Label>
+            <Form.Label>{t('descriptionRu')}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -193,7 +188,7 @@ function EditProductModal({ product, isOpen, onClose }) {
               type="switch"
               id="edit-inStock"
               name="inStock"
-              label={formData.inStock ? '✓ В наличии' : '✗ Нет в наличии'}
+              label={formData.inStock ? `✓ ${t('inStock')}` : `✗ ${t('outOfStock')}`}
               checked={formData.inStock}
               onChange={handleChange}
             />
@@ -201,8 +196,8 @@ function EditProductModal({ product, isOpen, onClose }) {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="secondary" onClick={onClose}>Отмена</Button>
-          <Button variant="primary" type="submit">💾 Сохранить</Button>
+          <Button variant="secondary" onClick={onClose}>{t('cancelBtn')}</Button>
+          <Button variant="primary" type="submit">{t('save')}</Button>
         </Modal.Footer>
       </Form>
     </Modal>

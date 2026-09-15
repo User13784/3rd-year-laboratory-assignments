@@ -1,24 +1,52 @@
 import React, { useEffect } from 'react';
 import { Container, Row, Col, Alert, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
   fetchFavorites,
   selectFavorites,
   selectFavoritesLoading
 } from '../../features/favorites/favoritesSlice';
+import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import ProductCard from '../product/ProductCard';
 
 function FavoritesPage() {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const favorites = useAppSelector(selectFavorites);
   const loading = useAppSelector(selectFavoritesLoading);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   useEffect(() => {
-    dispatch(fetchFavorites());
-  }, [dispatch]);
+    if (isAuthenticated) {
+      dispatch(fetchFavorites());
+    }
+  }, [dispatch, isAuthenticated]);
 
-  // Преобразуем данные избранного в формат ProductCard
+  if (!isAuthenticated) {
+    return (
+      <Container className="text-center py-5">
+        <Alert variant="warning">
+          <h2>🔒 {t('loginRequired')}</h2>
+          <p>{t('cartLoginRequired')}</p>
+        </Alert>
+        <Button as={Link} to="/register" variant="primary" size="lg">
+          👤 {t('login')}
+        </Button>
+      </Container>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="danger" />
+        <p className="mt-3">{t('loadingProducts')}</p>
+      </Container>
+    );
+  }
+
   const formattedFavorites = favorites.map(item => ({
     id: item.productId,
     name: item.name || { en: 'Product', ru: 'Товар' },
@@ -31,24 +59,15 @@ function FavoritesPage() {
     isFavorite: true
   }));
 
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" variant="danger" />
-        <p className="mt-3">Загрузка...</p>
-      </Container>
-    );
-  }
-
   if (formattedFavorites.length === 0) {
     return (
       <Container className="text-center py-5">
         <Alert variant="info">
-          <h2>😔 В избранном пусто</h2>
-          <p>Добавляйте товары в избранное</p>
+          <h2>{t('emptyFavorites')}</h2>
+          <p>{t('emptyFavoritesHint')}</p>
         </Alert>
         <Button as={Link} to="/catalog" variant="primary" size="lg">
-          🛍️ В каталог
+          {t('goToCatalog')}
         </Button>
       </Container>
     );
@@ -57,8 +76,8 @@ function FavoritesPage() {
   return (
     <Container className="py-4">
       <div className="text-center mb-4">
-        <h1 className="display-5">❤️ Избранное</h1>
-        <p className="text-muted">Ваши любимые товары</p>
+        <h1 className="display-5">{t('favoritesTitle')}</h1>
+        <p className="text-muted">{t('favoritesSubtitle')}</p>
         <span
           style={{
             display: 'inline-block',
@@ -71,7 +90,7 @@ function FavoritesPage() {
             marginTop: '15px'
           }}
         >
-          ❤️ {formattedFavorites.length} товаров
+          ❤️ {formattedFavorites.length} {t('items')}
         </span>
       </div>
 

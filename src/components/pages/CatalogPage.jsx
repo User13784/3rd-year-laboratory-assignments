@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Container,
-  Row,
-  Col,
-  Form,
-  Button,
-  Badge,
-  Alert,
-  Spinner,
-  ButtonGroup,
-  InputGroup,
-  Pagination
+  Container, Row, Col, Form, Button, Badge, Alert,
+  Spinner, ButtonGroup, InputGroup, Pagination
 } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
   fetchProducts,
@@ -32,14 +24,13 @@ import ProductCard from '../product/ProductCard';
 import ProductModal from '../product/ProductModal';
 import EditProductModal from '../product/EditProductModal';
 import AddProductModal from '../product/AddProductModal';
-import { useLanguage } from '../../context/LanguageContext';
 
 function CatalogPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
 
-  // ===== REDUX STATE =====
+  // ===== REDUX =====
   const products = useAppSelector(selectFilteredProducts);
   const loading = useAppSelector(selectProductsLoading);
   const searchTerm = useAppSelector(selectSearchTerm);
@@ -59,12 +50,10 @@ function CatalogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // ===== ЗАГРУЗКА =====
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  // ===== МОДАЛКИ =====
   const openProductModal = (product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
@@ -78,7 +67,7 @@ function CatalogPage() {
   const openEditModal = (product, e) => {
     if (e) e.stopPropagation();
     if (!isAdmin) {
-      alert('⛔ Только для администратора');
+      alert(t('adminRequired'));
       return;
     }
     setEditingProduct(product);
@@ -92,14 +81,14 @@ function CatalogPage() {
 
   const handleAddToCart = async (product) => {
     if (!isAuthenticated) {
-      alert('🔒 Войдите в аккаунт');
+      alert(t('loginRequired'));
       return;
     }
 
     try {
       const existing = cartItems.find(i => i.productId === product.id);
       if (existing) {
-        alert('Товар уже в корзине');
+        alert(t('alreadyInCart'));
         return;
       }
 
@@ -111,14 +100,12 @@ function CatalogPage() {
         quantity: 1
       })).unwrap();
 
-      alert('✅ Добавлено в корзину!');
+      alert(`✅ ${t('addedToCart')}`);
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Ошибка добавления');
     }
   };
 
-  // ===== МНОЖЕСТВЕННЫЙ ВЫБОР =====
   const toggleProductSelection = (productId) => {
     setSelectedProducts(prev =>
       prev.includes(productId)
@@ -139,21 +126,20 @@ function CatalogPage() {
     if (!isAdmin) return;
     if (selectedProducts.length === 0) return;
 
-    if (!window.confirm(`Удалить ${selectedProducts.length} товаров?`)) return;
+    if (!window.confirm(`${t('confirmDelete')} ${selectedProducts.length} ${t('confirmDeleteEnd')}`)) return;
 
     try {
       for (const id of selectedProducts) {
         await dispatch(deleteProductAsync(id)).unwrap();
       }
       setSelectedProducts([]);
-      alert('✅ Товары удалены');
+      alert('✅ ' + t('productsDeleted'));
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Ошибка удаления');
+      alert('❌ ' + t('errorDeleting'));
     }
   };
 
-  // ===== ПАГИНАЦИЯ =====
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedProducts = products.slice(startIndex, startIndex + itemsPerPage);
@@ -162,34 +148,25 @@ function CatalogPage() {
     setCurrentPage(1);
   }, [searchTerm, selectedCategory, sortBy]);
 
-  // ===== КАТЕГОРИИ =====
   const categories = [
-    { key: 'all', label: t('catAll') || 'Все' },
-    { key: 'sofa', label: t('catSofa') || 'Диваны' },
-    { key: 'living', label: t('catLiving') || 'Гостиная' },
-    { key: 'kitchen', label: t('catKitchen') || 'Кухня' },
-    { key: 'bedroom', label: t('catBedroom') || 'Спальня' },
-    { key: 'bathroom', label: t('catBathroom') || 'Ванная' },
-    { key: 'decor', label: t('catDecor') || 'Декор' },
-    { key: 'ceramics', label: t('catCeramics') || 'Керамика' }
+    { key: 'all', label: t('catAll') },
+    { key: 'sofa', label: t('catSofa') },
+    { key: 'living', label: t('catLiving') },
+    { key: 'kitchen', label: t('catKitchen') },
+    { key: 'bedroom', label: t('catBedroom') },
+    { key: 'bathroom', label: t('catBathroom') },
+    { key: 'decor', label: t('catDecor') },
+    { key: 'ceramics', label: t('catCeramics') }
   ];
 
   return (
     <Container fluid className="py-4">
-      {/* ===== ЗАГОЛОВОК ===== */}
       <div className="text-center mb-4">
-        <h1 className="display-5">{t('ourCatalog') || 'Наш Каталог'}</h1>
-        <p className="text-muted">{t('catalogSubtitle') || 'Выберите идеальную мебель'}</p>
+        <h1 className="display-5">{t('ourCatalog')}</h1>
+        <p className="text-muted">{t('catalogSubtitle')}</p>
 
         {isAdmin && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: '15px'
-            }}
-          >
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
             <span
               style={{
                 display: 'inline-block',
@@ -203,13 +180,12 @@ function CatalogPage() {
                 boxShadow: '0 2px 10px rgba(255, 184, 0, 0.3)'
               }}
             >
-              👑 {t('adminMode') || 'Режим администратора'}
+              {t('adminMode')}
             </span>
           </div>
         )}
       </div>
 
-      {/* ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== */}
       <div className="bg-light p-3 rounded mb-4 shadow-sm">
         <Row className="g-3">
           <Col md={6}>
@@ -217,30 +193,22 @@ function CatalogPage() {
               <InputGroup.Text>🔍</InputGroup.Text>
               <Form.Control
                 type="text"
-                placeholder={t('searchPlaceholder') || '🔍 Поиск товаров...'}
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               />
               {searchTerm && (
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => dispatch(setSearchTerm(''))}
-                >
-                  ✖
-                </Button>
+                <Button variant="outline-secondary" onClick={() => dispatch(setSearchTerm(''))}>✖</Button>
               )}
             </InputGroup>
           </Col>
 
           <Col md={3}>
-            <Form.Select
-              value={sortBy}
-              onChange={(e) => dispatch(setSortBy(e.target.value))}
-            >
-              <option value="default">Сортировка: по умолчанию</option>
-              <option value="price-asc">Цена: по возрастанию</option>
-              <option value="price-desc">Цена: по убыванию</option>
-              <option value="rating-desc">Рейтинг: по убыванию</option>
+            <Form.Select value={sortBy} onChange={(e) => dispatch(setSortBy(e.target.value))}>
+              <option value="default">{t('sortDefault')}</option>
+              <option value="price-asc">{t('sortPriceAsc')}</option>
+              <option value="price-desc">{t('sortPriceDesc')}</option>
+              <option value="rating-desc">{t('sortRating')}</option>
             </Form.Select>
           </Col>
 
@@ -251,15 +219,12 @@ function CatalogPage() {
                 onClick={selectAll}
                 className="w-100"
               >
-                {selectedProducts.length === products.length
-                  ? '☐ Снять выделение'
-                  : '☑ Выбрать все'}
+                {selectedProducts.length === products.length ? t('deselectAll') : t('selectAll')}
               </Button>
             </Col>
           )}
         </Row>
 
-        {/* Категории + кнопка добавления */}
         <div className="d-flex flex-wrap align-items-center gap-2 mt-3">
           <ButtonGroup className="flex-wrap">
             {categories.map(cat => (
@@ -275,59 +240,38 @@ function CatalogPage() {
           </ButtonGroup>
 
           {isAdmin && (
-            <Button
-              variant="success"
-              size="sm"
-              onClick={() => setIsAddModalOpen(true)}
-            >
-              ➕ Добавить товар
+            <Button variant="success" size="sm" onClick={() => setIsAddModalOpen(true)}>
+              {t('addProduct')}
             </Button>
           )}
         </div>
       </div>
 
-      {/* ===== ПАНЕЛЬ МАССОВЫХ ДЕЙСТВИЙ ===== */}
       {isAdmin && selectedProducts.length > 0 && (
-        <Alert
-          variant="primary"
-          className="d-flex justify-content-between align-items-center flex-wrap gap-2"
-        >
-          <span>
-            ✅ Выбрано: <strong>{selectedProducts.length}</strong> из {products.length}
-          </span>
+        <Alert variant="primary" className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <span>✅ {t('selected')}: <strong>{selectedProducts.length}</strong> {t('of')} {products.length}</span>
           <div className="d-flex gap-2">
-            <Button variant="danger" size="sm" onClick={deleteSelected}>
-              🗑️ Удалить выбранные
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setSelectedProducts([])}
-            >
-              ✖ Отменить
-            </Button>
+            <Button variant="danger" size="sm" onClick={deleteSelected}>{t('deleteSelected')}</Button>
+            <Button variant="secondary" size="sm" onClick={() => setSelectedProducts([])}>{t('cancel')}</Button>
           </div>
         </Alert>
       )}
 
-      {/* ===== ПРЕДУПРЕЖДЕНИЕ ДЛЯ ГОСТЕЙ ===== */}
       {!isAuthenticated && (
         <Alert variant="warning">
-          ℹ️ <a href="/register" className="alert-link">Войдите в аккаунт</a>,
-          чтобы добавлять товары в корзину и избранное
+          ℹ️ <a href="/register" className="alert-link">{t('guestWarning')}</a>
         </Alert>
       )}
 
-      {/* ===== СПИСОК ТОВАРОВ ===== */}
       {loading ? (
         <div className="text-center py-5">
           <Spinner animation="border" variant="primary" />
-          <p className="mt-3">Загрузка товаров...</p>
+          <p className="mt-3">{t('loadingProducts')}</p>
         </div>
       ) : products.length === 0 ? (
         <Alert variant="info" className="text-center">
-          <h4>😕 Товары не найдены</h4>
-          <p>Попробуйте изменить критерии поиска</p>
+          <h4>{t('noProducts')}</h4>
+          <p>{t('noProductsHint')}</p>
         </Alert>
       ) : (
         <>
@@ -340,9 +284,7 @@ function CatalogPage() {
                       ? 'border border-primary border-3 rounded'
                       : ''
                   }`}
-                  style={{ transition: 'all 0.3s' }}
                 >
-                  {/* Чекбокс */}
                   {isAdmin && (
                     <Form.Check
                       type="checkbox"
@@ -354,20 +296,15 @@ function CatalogPage() {
                     />
                   )}
 
-                  {/* Карточка */}
-                  <div
-                    onClick={() => openProductModal(product)}
-                    style={{ cursor: 'pointer', height: '100%' }}
-                  >
+                  <div onClick={() => openProductModal(product)} style={{ cursor: 'pointer', height: '100%' }}>
                     <ProductCard product={product} />
                   </div>
 
-                  {/* Кнопка редактирования по центру при наведении */}
                   {isAdmin && (
                     <button
                       className="edit-product-btn-center"
                       onClick={(e) => openEditModal(product, e)}
-                      title="Редактировать"
+                      title={t('editProduct')}
                     >
                       ✏️
                     </button>
@@ -377,14 +314,10 @@ function CatalogPage() {
             ))}
           </Row>
 
-          {/* ===== ПАГИНАЦИЯ ===== */}
           {totalPages > 1 && (
             <div className="d-flex justify-content-center mt-4">
               <Pagination>
-                <Pagination.Prev
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                />
+                <Pagination.Prev disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)} />
                 {[...Array(totalPages)].map((_, i) => (
                   <Pagination.Item
                     key={i + 1}
@@ -394,23 +327,17 @@ function CatalogPage() {
                     {i + 1}
                   </Pagination.Item>
                 ))}
-                <Pagination.Next
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                />
+                <Pagination.Next disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)} />
               </Pagination>
             </div>
           )}
 
-          {/* ===== СТАТИСТИКА ===== */}
           <p className="text-center text-muted mt-3">
-            Показано: {startIndex + 1}–{Math.min(startIndex + itemsPerPage, products.length)}{' '}
-            из {products.length} товаров
+            {t('shown')}: {startIndex + 1}–{Math.min(startIndex + itemsPerPage, products.length)} {t('of')} {products.length} {t('products')}
           </p>
         </>
       )}
 
-      {/* ===== МОДАЛЬНЫЕ ОКНА ===== */}
       <ProductModal
         product={selectedProduct}
         isOpen={isModalOpen}

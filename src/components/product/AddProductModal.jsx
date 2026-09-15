@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { createProduct } from '../../features/products/productsSlice';
-import { useLanguage } from '../../context/LanguageContext';
 
 function AddProductModal({ isOpen, onClose }) {
   const dispatch = useAppDispatch();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     nameEn: '',
@@ -23,33 +23,25 @@ function AddProductModal({ isOpen, onClose }) {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
-  // ===== ВАЛИДАЦИЯ =====
   const validate = () => {
     const errs = {};
-    if (!formData.nameEn.trim()) errs.nameEn = 'Введите название (EN)';
-    if (!formData.nameRu.trim()) errs.nameRu = 'Введите название (RU)';
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      errs.price = 'Цена должна быть больше 0';
-    }
-    if (!formData.image.trim()) errs.image = 'Укажите URL изображения';
+    if (!formData.nameEn.trim()) errs.nameEn = 'Required';
+    if (!formData.nameRu.trim()) errs.nameRu = 'Required';
+    if (!formData.price || parseFloat(formData.price) <= 0) errs.price = 'Must be > 0';
+    if (!formData.image.trim()) errs.image = 'Required';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  // ===== ИЗМЕНЕНИЕ ПОЛЕЙ =====
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    // Очищаем ошибку при вводе
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  // ===== ОТПРАВКА =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -76,22 +68,15 @@ function AddProductModal({ isOpen, onClose }) {
       }, 1500);
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Ошибка создания товара');
+      alert('❌ ' + t('errorAdding'));
     }
   };
 
-  // ===== СБРОС =====
   const resetForm = () => {
     setFormData({
-      nameEn: '',
-      nameRu: '',
-      price: '',
-      category: 'sofa',
-      image: '/assets/images/c1.jpg',
-      descriptionEn: '',
-      descriptionRu: '',
-      inStock: true,
-      rating: 5
+      nameEn: '', nameRu: '', price: '', category: 'sofa',
+      image: '/assets/images/c1.jpg', descriptionEn: '', descriptionRu: '',
+      inStock: true, rating: 5
     });
     setErrors({});
     setSuccess(false);
@@ -105,43 +90,39 @@ function AddProductModal({ isOpen, onClose }) {
   return (
     <Modal show={isOpen} onHide={handleClose} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>➕ Добавить товар</Modal.Title>
+        <Modal.Title>{t('addProductTitle')}</Modal.Title>
       </Modal.Header>
 
       <Form onSubmit={handleSubmit} noValidate>
         <Modal.Body>
-          {success && (
-            <Alert variant="success">✅ Товар успешно добавлен!</Alert>
-          )}
+          {success && <Alert variant="success">✅ {t('productAdded')}</Alert>}
 
           <Form.Group className="mb-3">
-            <Form.Label>Название (EN) *</Form.Label>
+            <Form.Label>{t('nameEn')} *</Form.Label>
             <Form.Control
               type="text"
               name="nameEn"
               value={formData.nameEn}
               onChange={handleChange}
               isInvalid={!!errors.nameEn}
-              placeholder="Luxury Sofa"
             />
             <Form.Control.Feedback type="invalid">{errors.nameEn}</Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Название (RU) *</Form.Label>
+            <Form.Label>{t('nameRu')} *</Form.Label>
             <Form.Control
               type="text"
               name="nameRu"
               value={formData.nameRu}
               onChange={handleChange}
               isInvalid={!!errors.nameRu}
-              placeholder="Роскошный диван"
             />
             <Form.Control.Feedback type="invalid">{errors.nameRu}</Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Цена (£) *</Form.Label>
+            <Form.Label>{t('price')} *</Form.Label>
             <Form.Control
               type="number"
               name="price"
@@ -150,37 +131,31 @@ function AddProductModal({ isOpen, onClose }) {
               isInvalid={!!errors.price}
               min="0"
               step="0.01"
-              placeholder="899.00"
             />
             <Form.Control.Feedback type="invalid">{errors.price}</Form.Control.Feedback>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Категория *</Form.Label>
-            <Form.Select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-            >
-              <option value="sofa">Диваны</option>
-              <option value="living">Гостиная</option>
-              <option value="kitchen">Кухня</option>
-              <option value="bedroom">Спальня</option>
-              <option value="bathroom">Ванная</option>
-              <option value="decor">Декор</option>
-              <option value="ceramics">Керамика</option>
+            <Form.Label>{t('category')} *</Form.Label>
+            <Form.Select name="category" value={formData.category} onChange={handleChange}>
+              <option value="sofa">{t('catSofa')}</option>
+              <option value="living">{t('catLiving')}</option>
+              <option value="kitchen">{t('catKitchen')}</option>
+              <option value="bedroom">{t('catBedroom')}</option>
+              <option value="bathroom">{t('catBathroom')}</option>
+              <option value="decor">{t('catDecor')}</option>
+              <option value="ceramics">{t('catCeramics')}</option>
             </Form.Select>
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>URL изображения *</Form.Label>
+            <Form.Label>{t('imageUrl')} *</Form.Label>
             <Form.Control
               type="text"
               name="image"
               value={formData.image}
               onChange={handleChange}
               isInvalid={!!errors.image}
-              placeholder="/assets/images/c1.jpg"
             />
             <Form.Control.Feedback type="invalid">{errors.image}</Form.Control.Feedback>
           </Form.Group>
@@ -198,26 +173,24 @@ function AddProductModal({ isOpen, onClose }) {
           )}
 
           <Form.Group className="mb-3">
-            <Form.Label>Описание (EN)</Form.Label>
+            <Form.Label>{t('descriptionEn')}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               name="descriptionEn"
               value={formData.descriptionEn}
               onChange={handleChange}
-              placeholder="Premium luxury sofa..."
             />
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Описание (RU)</Form.Label>
+            <Form.Label>{t('descriptionRu')}</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
               name="descriptionRu"
               value={formData.descriptionRu}
               onChange={handleChange}
-              placeholder="Роскошный диван..."
             />
           </Form.Group>
 
@@ -226,7 +199,7 @@ function AddProductModal({ isOpen, onClose }) {
               type="switch"
               id="inStock-switch"
               name="inStock"
-              label={formData.inStock ? '✓ В наличии' : '✗ Нет в наличии'}
+              label={formData.inStock ? `✓ ${t('inStock')}` : `✗ ${t('outOfStock')}`}
               checked={formData.inStock}
               onChange={handleChange}
             />
@@ -234,8 +207,8 @@ function AddProductModal({ isOpen, onClose }) {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>Отмена</Button>
-          <Button variant="primary" type="submit">💾 Добавить</Button>
+          <Button variant="secondary" onClick={handleClose}>{t('cancelBtn')}</Button>
+          <Button variant="primary" type="submit">{t('save')}</Button>
         </Modal.Footer>
       </Form>
     </Modal>

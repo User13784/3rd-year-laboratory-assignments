@@ -1,38 +1,36 @@
 import React, { useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Alert, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
   fetchFeedback,
   selectFeedback,
   selectFeedbackLoading
 } from '../../features/feedback/feedbackSlice';
-import { useLanguage } from '../../context/LanguageContext';
 
 function FeedbackPage() {
   const dispatch = useAppDispatch();
-  const { t, lang } = useLanguage();
+  const { t, i18n } = useTranslation();
 
-  // ===== REDUX STATE =====
   const feedback = useAppSelector(selectFeedback);
   const loading = useAppSelector(selectFeedbackLoading);
 
-  // ===== ЗАГРУЗКА =====
   useEffect(() => {
     dispatch(fetchFeedback());
   }, [dispatch]);
 
   const getTranslatedText = (text) => {
-    const currentLang = lang || localStorage.getItem('language') || 'en';
+    const lang = i18n.language || 'ru';
     if (!text) return '';
     if (typeof text === 'string') return text;
-    return text[currentLang] || text.en || '';
+    return text[lang] || text.en || '';
   };
 
   const getTranslatedProductName = (name) => {
-    const currentLang = lang || localStorage.getItem('language') || 'en';
-    if (!name) return 'Product';
+    const lang = i18n.language || 'ru';
+    if (!name) return t('product');
     if (typeof name === 'string') return name;
-    return name[currentLang] || name.en || 'Product';
+    return name[lang] || name.en || t('product');
   };
 
   const generateStars = (rating) => {
@@ -45,7 +43,7 @@ function FeedbackPage() {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
+    return date.toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -58,7 +56,7 @@ function FeedbackPage() {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Загрузка отзывов...</p>
+        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }
@@ -69,10 +67,9 @@ function FeedbackPage() {
 
   return (
     <Container className="py-4">
-      {/* ===== ЗАГОЛОВОК ===== */}
       <div className="text-center mb-4">
-        <h1 className="display-5">⭐ Отзывы покупателей</h1>
-        <p className="text-muted">Поделитесь своим мнением о товарах</p>
+        <h1 className="display-5">{t('reviewsTitle')}</h1>
+        <p className="text-muted">{t('reviewsSubtitle')}</p>
 
         {feedback.length > 0 && (
           <div
@@ -96,7 +93,7 @@ function FeedbackPage() {
                 whiteSpace: 'nowrap'
               }}
             >
-              Всего отзывов: {feedback.length}
+              {t('totalReviews')} {feedback.length}
             </span>
 
             <span
@@ -110,17 +107,16 @@ function FeedbackPage() {
                 whiteSpace: 'nowrap'
               }}
             >
-              Средний рейтинг: {avgRating} ⭐
+              {t('avgRating')} {avgRating} ⭐
             </span>
           </div>
         )}
       </div>
 
-      {/* ===== ОТЗЫВЫ ===== */}
       {feedback.length === 0 ? (
         <Alert variant="info" className="text-center">
-          <h4>💬 Пока нет отзывов</h4>
-          <p>Будьте первым, кто оставит отзыв!</p>
+          <h4>{t('noReviews')}</h4>
+          <p>{t('noReviewsHint')}</p>
         </Alert>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
@@ -198,7 +194,7 @@ function FeedbackPage() {
                 </Card.Body>
 
                 <Card.Footer style={{ backgroundColor: '#f8fafc', color: '#5a7c85', fontSize: '12px' }}>
-                  Рейтинг: {review.rating} / 5
+                  {t('rating')}: {review.rating} / 5
                 </Card.Footer>
               </Card>
             </Col>

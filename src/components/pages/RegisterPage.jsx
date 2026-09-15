@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Form, Button, Alert, Tab, Tabs } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { loginSuccess } from '../../features/auth/authSlice';
 import { fetchCart } from '../../features/cart/cartSlice';
 import { fetchFavorites } from '../../features/favorites/favoritesSlice';
 import { api } from '../../services/api';
-import { useLanguage } from '../../context/LanguageContext';
 
 function RegisterPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const [key, setKey] = useState('login');
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -24,13 +24,12 @@ function RegisterPage() {
   const [registerError, setRegisterError] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
 
-  // ===== ВХОД =====
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
 
     if (!loginData.email || !loginData.password) {
-      setLoginError('Заполните все поля');
+      setLoginError(t('fillFields'));
       return;
     }
 
@@ -39,50 +38,46 @@ function RegisterPage() {
       const user = await api.loginUser(loginData.email);
 
       if (!user) {
-        setLoginError('Пользователь с таким email не найден');
+        setLoginError(t('userNotFound'));
         setLoginLoading(false);
         return;
       }
 
       if (user.password !== loginData.password) {
-        setLoginError('Неверный пароль');
+        setLoginError(t('wrongPassword'));
         setLoginLoading(false);
         return;
       }
 
-      // ✅ Сохраняем пользователя в Redux + localStorage
       dispatch(loginSuccess(user));
-
-      // ✅ Загружаем корзину и избранное ТОЛЬКО этого пользователя
       await dispatch(fetchCart());
       await dispatch(fetchFavorites());
 
       navigate('/catalog');
       alert(
         user.role === 'admin'
-          ? `👑 Добро пожаловать, ${user.firstName}!`
-          : `✅ Добро пожаловать, ${user.firstName}!`
+          ? `${t('welcomeAdmin')}, ${user.firstName}!`
+          : `${t('welcomeUser')}, ${user.firstName}!`
       );
     } catch (error) {
       console.error('Login error:', error);
-      setLoginError('Ошибка входа. Проверьте сервер.');
+      setLoginError(t('loginError'));
     }
     setLoginLoading(false);
   };
 
-  // ===== РЕГИСТРАЦИЯ =====
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegisterError('');
 
     if (!registerData.firstName || !registerData.lastName ||
         !registerData.email || !registerData.password) {
-      setRegisterError('Заполните все поля');
+      setRegisterError(t('fillFields'));
       return;
     }
 
     if (registerData.password.length < 6) {
-      setRegisterError('Пароль должен быть не менее 6 символов');
+      setRegisterError(t('passwordMin'));
       return;
     }
 
@@ -90,7 +85,7 @@ function RegisterPage() {
     try {
       const existing = await api.loginUser(registerData.email);
       if (existing) {
-        setRegisterError('Email уже занят');
+        setRegisterError(t('emailTaken'));
         setRegisterLoading(false);
         return;
       }
@@ -104,18 +99,15 @@ function RegisterPage() {
 
       const created = await api.registerUser(newUser);
 
-      // ✅ Сохраняем пользователя в Redux
       dispatch(loginSuccess(created));
-
-      // ✅ Пустая корзина и избранное у нового пользователя
       await dispatch(fetchCart());
       await dispatch(fetchFavorites());
 
       navigate('/catalog');
-      alert(`✅ Регистрация успешна! Добро пожаловать, ${created.firstName}!`);
+      alert(`${t('registerSuccess')}, ${created.firstName}!`);
     } catch (error) {
       console.error('Register error:', error);
-      setRegisterError('Ошибка регистрации');
+      setRegisterError(t('registerError'));
     }
     setRegisterLoading(false);
   };
@@ -124,17 +116,16 @@ function RegisterPage() {
     <Container className="py-5">
       <Card className="mx-auto shadow" style={{ maxWidth: '500px' }}>
         <Card.Header className="text-center bg-primary text-white">
-          <h3 className="mb-0">🔐 Аккаунт</h3>
+          <h3 className="mb-0">{t('account')}</h3>
         </Card.Header>
         <Card.Body>
           <Tabs activeKey={key} onSelect={setKey} className="mb-4 justify-content-center">
-            {/* ВХОД */}
-            <Tab eventKey="login" title="Вход">
+            <Tab eventKey="login" title={t('loginTab')}>
               <Form onSubmit={handleLogin}>
                 {loginError && <Alert variant="danger">{loginError}</Alert>}
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>{t('email')}</Form.Label>
                   <Form.Control
                     type="email"
                     placeholder="example@mail.com"
@@ -144,10 +135,10 @@ function RegisterPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Пароль</Form.Label>
+                  <Form.Label>{t('password')}</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Введите пароль"
+                    placeholder={t('password')}
                     value={loginData.password}
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                   />
@@ -159,24 +150,23 @@ function RegisterPage() {
                   className="w-100"
                   disabled={loginLoading}
                 >
-                  {loginLoading ? '⏳ Вход...' : 'Войти'}
+                  {loginLoading ? t('loadingLogin') : t('loginBtn')}
                 </Button>
 
                 <div className="text-center mt-3 text-muted small">
-                  Тестовый админ: <strong>admin@example.com</strong> / <strong>admin123</strong>
+                  {t('testAdmin')}: <strong>admin@example.com</strong> / <strong>admin123</strong>
                   <br />
-                  Тестовый юзер: <strong>user@example.com</strong> / <strong>user123</strong>
+                  {t('testUser')}: <strong>user@example.com</strong> / <strong>user123</strong>
                 </div>
               </Form>
             </Tab>
 
-            {/* РЕГИСТРАЦИЯ */}
-            <Tab eventKey="register" title="Регистрация">
+            <Tab eventKey="register" title={t('registerTab')}>
               <Form onSubmit={handleRegister}>
                 {registerError && <Alert variant="danger">{registerError}</Alert>}
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Имя</Form.Label>
+                  <Form.Label>{t('firstName')}</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Иван"
@@ -186,7 +176,7 @@ function RegisterPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Фамилия</Form.Label>
+                  <Form.Label>{t('lastName')}</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="Петров"
@@ -196,7 +186,7 @@ function RegisterPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label>{t('email')}</Form.Label>
                   <Form.Control
                     type="email"
                     placeholder="example@mail.com"
@@ -206,10 +196,10 @@ function RegisterPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Пароль</Form.Label>
+                  <Form.Label>{t('password')}</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Минимум 6 символов"
+                    placeholder={t('passwordMin')}
                     value={registerData.password}
                     onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                   />
@@ -221,7 +211,7 @@ function RegisterPage() {
                   className="w-100"
                   disabled={registerLoading}
                 >
-                  {registerLoading ? '⏳ Регистрация...' : 'Зарегистрироваться'}
+                  {registerLoading ? t('loadingRegister') : t('registerBtn')}
                 </Button>
               </Form>
             </Tab>

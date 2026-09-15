@@ -4,6 +4,7 @@ import {
   Spinner, Tabs, Tab, Form, InputGroup
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
   fetchProducts,
@@ -17,13 +18,17 @@ import {
   selectFeedback,
   selectFeedbackLoading
 } from '../../features/feedback/feedbackSlice';
-import { selectUser, selectIsAdmin, selectIsAuthenticated } from '../../features/auth/authSlice';
+import {
+  selectUser,
+  selectIsAdmin,
+  selectIsAuthenticated
+} from '../../features/auth/authSlice';
 import ProductCard from '../product/ProductCard';
 
 function AdminPage() {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
-  // ===== REDUX STATE =====
   const products = useAppSelector(selectAllProducts);
   const productsLoading = useAppSelector(selectProductsLoading);
   const feedback = useAppSelector(selectFeedback);
@@ -32,11 +37,9 @@ function AdminPage() {
   const isAdmin = useAppSelector(selectIsAdmin);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  // ===== LOCAL STATE =====
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // ===== ЗАГРУЗКА =====
   useEffect(() => {
     if (isAdmin) {
       dispatch(fetchProducts());
@@ -44,15 +47,13 @@ function AdminPage() {
     }
   }, [dispatch, isAdmin]);
 
-  // ===== ПРОВЕРКА ДОСТУПА =====
   if (!isAuthenticated) {
     return (
       <Container className="py-5">
         <Alert variant="warning" className="text-center">
-          <h2>🔒 Требуется вход</h2>
-          <p>Войдите в аккаунт для доступа к админ-панели</p>
+          <h2>🔒 {t('loginRequired')}</h2>
           <Button as={Link} to="/register" variant="primary" size="lg">
-            Войти
+            {t('login')}
           </Button>
         </Alert>
       </Container>
@@ -63,10 +64,10 @@ function AdminPage() {
     return (
       <Container className="py-5">
         <Alert variant="danger" className="text-center">
-          <h2>⛔ Доступ запрещён</h2>
-          <p>Эта страница доступна только администратору</p>
+          <h2>⛔ {t('accessDenied')}</h2>
+          <p>{t('adminRequired')}</p>
           <Button as={Link} to="/catalog" variant="primary" size="lg">
-            В каталог
+            {t('goToCatalogBtn')}
           </Button>
         </Alert>
       </Container>
@@ -77,37 +78,35 @@ function AdminPage() {
     return (
       <Container className="text-center py-5">
         <Spinner animation="border" variant="primary" />
-        <p className="mt-3">Загрузка...</p>
+        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }
 
-  // ===== УДАЛЕНИЕ =====
   const handleDeleteProduct = async (productId, productName) => {
-    if (!window.confirm(`Удалить "${productName}"?`)) return;
+    if (!window.confirm(`${t('confirmDelete')} "${productName}"?`)) return;
 
     try {
       await dispatch(deleteProductAsync(productId)).unwrap();
-      alert('✅ Товар удалён');
+      alert('✅ ' + t('productsDeleted'));
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Ошибка удаления');
+      alert('❌ ' + t('errorDeleting'));
     }
   };
 
   const handleDeleteFeedback = async (feedbackId) => {
-    if (!window.confirm('Удалить отзыв?')) return;
+    if (!window.confirm(t('confirmDelete') + '?')) return;
 
     try {
       await dispatch(deleteFeedback(feedbackId)).unwrap();
-      alert('✅ Отзыв удалён');
+      alert('✅ ' + t('productsDeleted'));
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Ошибка удаления');
+      alert('❌ ' + t('errorDeleting'));
     }
   };
 
-  // ===== ФИЛЬТРАЦИЯ =====
   const filteredProducts = products.filter(product => {
     const nameEn = product.name?.en || '';
     const nameRu = product.name?.ru || '';
@@ -116,7 +115,6 @@ function AdminPage() {
            nameRu.toLowerCase().includes(searchLower);
   });
 
-  // ===== СТАТИСТИКА =====
   const totalProducts = products.length;
   const inStockProducts = products.filter(p => p.inStock).length;
   const outOfStockProducts = products.filter(p => !p.inStock).length;
@@ -128,19 +126,11 @@ function AdminPage() {
 
   return (
     <Container fluid className="py-4">
-      {/* ===== ЗАГОЛОВОК ===== */}
       <div className="text-center mb-4">
-        <h1 className="display-5">👑 Admin Panel</h1>
-        <p className="text-muted">Manage products and reviews</p>
+        <h1 className="display-5">{t('adminPanel')}</h1>
+        <p className="text-muted">{t('adminSubtitle')}</p>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: '15px'
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
           <span
             style={{
               display: 'inline-block',
@@ -159,52 +149,42 @@ function AdminPage() {
         </div>
       </div>
 
-      {/* ===== ВКЛАДКИ ===== */}
-      <Tabs
-        activeKey={activeTab}
-        onSelect={(k) => setActiveTab(k)}
-        className="mb-4 justify-content-center"
-        fill
-      >
-        {/* DASHBOARD */}
-        <Tab eventKey="dashboard" title="📊 Dashboard">
+      <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-4 justify-content-center" fill>
+        <Tab eventKey="dashboard" title={t('dashboard')}>
           <Row className="g-4 mb-4">
             <Col xs={6} md={3}>
               <Card className="text-center shadow-sm h-100 border-primary">
                 <Card.Body>
                   <div className="fs-1">📦</div>
                   <h2 className="text-primary">{totalProducts}</h2>
-                  <p className="text-muted mb-0">Товаров</p>
+                  <p className="text-muted mb-0">{t('products')}</p>
                 </Card.Body>
               </Card>
             </Col>
-
             <Col xs={6} md={3}>
               <Card className="text-center shadow-sm h-100 border-success">
                 <Card.Body>
                   <div className="fs-1">✅</div>
                   <h2 className="text-success">{inStockProducts}</h2>
-                  <p className="text-muted mb-0">В наличии</p>
+                  <p className="text-muted mb-0">{t('inStock')}</p>
                 </Card.Body>
               </Card>
             </Col>
-
             <Col xs={6} md={3}>
               <Card className="text-center shadow-sm h-100 border-danger">
                 <Card.Body>
                   <div className="fs-1">❌</div>
                   <h2 className="text-danger">{outOfStockProducts}</h2>
-                  <p className="text-muted mb-0">Нет в наличии</p>
+                  <p className="text-muted mb-0">{t('outOfStock')}</p>
                 </Card.Body>
               </Card>
             </Col>
-
             <Col xs={6} md={3}>
               <Card className="text-center shadow-sm h-100 border-info">
                 <Card.Body>
                   <div className="fs-1">💬</div>
                   <h2 className="text-info">{totalFeedback}</h2>
-                  <p className="text-muted mb-0">Отзывов</p>
+                  <p className="text-muted mb-0">{t('reviews')}</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -216,17 +196,16 @@ function AdminPage() {
                 <Card.Body>
                   <div className="fs-1">⭐</div>
                   <h2 className="text-warning">{avgRating} / 5</h2>
-                  <p className="text-muted mb-0">Средний рейтинг</p>
+                  <p className="text-muted mb-0">{t('avgRating')}</p>
                 </Card.Body>
               </Card>
             </Col>
-
             <Col md={6}>
               <Card className="text-center shadow-sm h-100">
                 <Card.Body>
                   <div className="fs-1">💰</div>
                   <h2 className="text-success">£{totalValue.toFixed(2)}</h2>
-                  <p className="text-muted mb-0">Общая стоимость</p>
+                  <p className="text-muted mb-0">{t('totalValue')}</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -234,12 +213,11 @@ function AdminPage() {
 
           <div className="mt-4 text-center">
             <Button as={Link} to="/catalog" variant="primary" size="lg" className="m-1">
-              🛍️ В каталог
+              {t('goToCatalog')}
             </Button>
           </div>
         </Tab>
 
-        {/* PRODUCTS */}
         <Tab eventKey="products" title="📦 Products">
           <Card className="shadow-sm">
             <Card.Body>
@@ -249,23 +227,18 @@ function AdminPage() {
                     <InputGroup.Text>🔍</InputGroup.Text>
                     <Form.Control
                       type="text"
-                      placeholder="Поиск товаров..."
+                      placeholder={t('searchProducts')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     {searchTerm && (
-                      <Button
-                        variant="outline-secondary"
-                        onClick={() => setSearchTerm('')}
-                      >
-                        ✖
-                      </Button>
+                      <Button variant="outline-secondary" onClick={() => setSearchTerm('')}>✖</Button>
                     )}
                   </InputGroup>
                 </Col>
                 <Col md={6} className="text-end">
                   <Badge bg="primary" className="fs-6">
-                    {filteredProducts.length} из {products.length}
+                    {filteredProducts.length} {t('of')} {products.length}
                   </Badge>
                 </Col>
               </Row>
@@ -273,23 +246,21 @@ function AdminPage() {
               <Table striped bordered hover responsive>
                 <thead className="table-dark">
                   <tr>
-                    <th>ID</th>
-                    <th>Фото</th>
-                    <th>Название</th>
-                    <th>Категория</th>
-                    <th>Цена</th>
-                    <th>Рейтинг</th>
-                    <th>Наличие</th>
-                    <th className="text-center">Действия</th>
+                    <th>{t('id')}</th>
+                    <th>Photo</th>
+                    <th>{t('name')}</th>
+                    <th>{t('category')}</th>
+                    <th>{t('price')}</th>
+                    <th>{t('rating')}</th>
+                    <th>{t('availability')}</th>
+                    <th className="text-center">{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredProducts.length === 0 ? (
                     <tr>
                       <td colSpan="8" className="text-center py-4">
-                        <Alert variant="info" className="mb-0">
-                          Товары не найдены
-                        </Alert>
+                        <Alert variant="info" className="mb-0">{t('noProducts')}</Alert>
                       </td>
                     </tr>
                   ) : (
@@ -307,12 +278,10 @@ function AdminPage() {
                         <td>{product.name?.en}</td>
                         <td><Badge bg="info">{product.category}</Badge></td>
                         <td className="fw-bold">£{product.price}</td>
-                        <td className="text-warning">
-                          {'★'.repeat(Math.floor(product.rating))}
-                        </td>
+                        <td className="text-warning">{'★'.repeat(Math.floor(product.rating))}</td>
                         <td>
                           <Badge bg={product.inStock ? 'success' : 'danger'}>
-                            {product.inStock ? 'Да' : 'Нет'}
+                            {product.inStock ? t('yes') : t('no')}
                           </Badge>
                         </td>
                         <td className="text-center">
@@ -333,13 +302,12 @@ function AdminPage() {
           </Card>
         </Tab>
 
-        {/* REVIEWS */}
         <Tab eventKey="feedback" title="💬 Reviews">
           <Card className="shadow-sm">
             <Card.Body>
               {feedback.length === 0 ? (
                 <Alert variant="info" className="text-center mb-0">
-                  <h4>💬 Пока нет отзывов</h4>
+                  <h4>{t('noReviews')}</h4>
                 </Alert>
               ) : (
                 <Row xs={1} md={2} lg={3} className="g-3">
@@ -348,24 +316,16 @@ function AdminPage() {
                       <Card className="h-100 shadow-sm">
                         <Card.Header className="d-flex justify-content-between align-items-center">
                           <strong>{review.userNickname || 'User'}</strong>
-                          <Badge bg="warning" text="dark">
-                            {'★'.repeat(review.rating)}
-                          </Badge>
+                          <Badge bg="warning" text="dark">{'★'.repeat(review.rating)}</Badge>
                         </Card.Header>
                         <Card.Body>
-                          <Card.Text>
-                            {review.text?.ru || review.text?.en}
-                          </Card.Text>
+                          <Card.Text>{review.text?.ru || review.text?.en}</Card.Text>
                         </Card.Body>
                         <Card.Footer className="d-flex justify-content-between align-items-center">
                           <small className="text-muted">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </small>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDeleteFeedback(review.id)}
-                          >
+                          <Button size="sm" variant="danger" onClick={() => handleDeleteFeedback(review.id)}>
                             🗑️
                           </Button>
                         </Card.Footer>
@@ -379,10 +339,9 @@ function AdminPage() {
         </Tab>
       </Tabs>
 
-      {/* ===== ПРЕВЬЮ ===== */}
       {activeTab === 'products' && filteredProducts.length > 0 && (
         <Container className="mt-4">
-          <h4 className="text-center mb-3">Preview</h4>
+          <h4 className="text-center mb-3">{t('preview')}</h4>
           <Row xs={1} sm={2} md={3} lg={4} className="g-3">
             {filteredProducts.slice(0, 4).map(product => (
               <Col key={product.id}>

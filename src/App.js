@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import {
-  Navbar, Nav, Container, Button, Badge, ButtonGroup
-} from 'react-bootstrap';
+import { Navbar, Nav, Container, Button, Badge, ButtonGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from './hooks/reduxHooks';
 import {
@@ -13,7 +11,6 @@ import {
 } from './features/auth/authSlice';
 import { selectCartCount, clearCartOnLogout } from './features/cart/cartSlice';
 import { clearFavoritesOnLogout } from './features/favorites/favoritesSlice';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import Sidebar from './components/layout/Sidebar';
 import Footer from './components/layout/Footer';
@@ -30,24 +27,25 @@ import './App.css';
 // ===== ШАПКА =====
 function Header() {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
-  const { lang, toggleLanguage } = useLanguage();
+  const { t, i18n } = useTranslation();
   const { isDark, toggleTheme } = useTheme();
 
-  // ===== REDUX STATE =====
+  // ===== REDUX =====
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isAdmin = useAppSelector(selectIsAdmin);
   const cartCount = useAppSelector(selectCartCount);
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'ru' ? 'en' : 'ru';
+    i18n.changeLanguage(newLang);
+  };
+
   const handleLogout = () => {
-    if (window.confirm('Выйти из аккаунта?')) {
-      // ✅ Очищаем Redux state (корзина + избранное)
+    if (window.confirm(t('logoutConfirm'))) {
       dispatch(clearCartOnLogout());
       dispatch(clearFavoritesOnLogout());
       dispatch(logout());
-
-      // Редирект на главную
       window.location.href = '/';
     }
   };
@@ -76,7 +74,7 @@ function Header() {
                   {isAdmin && <Badge bg="warning" text="dark" className="ms-2">👑 Admin</Badge>}
                 </Navbar.Text>
                 <Button variant="outline-light" size="sm" onClick={handleLogout}>
-                  🚪 Выйти
+                  🚪 {t('logout')}
                 </Button>
               </>
             ) : (
@@ -101,7 +99,7 @@ function Header() {
 
             <ButtonGroup size="sm" className="ms-2">
               <Button variant="outline-light" onClick={toggleLanguage}>
-                {lang === 'ru' ? '🇬🇧 EN' : '🇷🇺 RU'}
+                {i18n.language === 'ru' ? '🇬🇧 EN' : '🇷🇺 RU'}
               </Button>
               <Button variant="outline-light" onClick={toggleTheme}>
                 {isDark ? '☀️' : '🌙'}
@@ -121,27 +119,25 @@ function App() {
 
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <Router>
-          <div className="app-container d-flex">
-            <Sidebar companyName={companyName} />
-            <main className="main-content flex-grow-1 p-3">
-              <Header />
-              <Routes>
-                <Route path="/" element={<HomePage title={mainTitle} />} />
-                <Route path="/catalog" element={<CatalogPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/favorites" element={<FavoritesPage />} />
-                <Route path="/feedback" element={<FeedbackPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-              <Footer />
-            </main>
-          </div>
-        </Router>
-      </LanguageProvider>
+      <Router>
+        <div className="app-container d-flex">
+          <Sidebar companyName={companyName} />
+          <main className="main-content flex-grow-1 p-3">
+            <Header />
+            <Routes>
+              <Route path="/" element={<HomePage title={mainTitle} />} />
+              <Route path="/catalog" element={<CatalogPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+            <Footer />
+          </main>
+        </div>
+      </Router>
     </ThemeProvider>
   );
 }

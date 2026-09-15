@@ -1,24 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Carousel,
-  Badge
-} from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Carousel, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 function HomePage() {
-  const { t, lang } = useLanguage();
+  const { t, i18n } = useTranslation();
 
   const [counters, setCounters] = useState({
-    clients: 0,
-    sold: 0,
-    awards: 0,
-    experience: 0
+    clients: 0, sold: 0, awards: 0, experience: 0
   });
 
   const galleryImages = [
@@ -30,9 +19,9 @@ function HomePage() {
   ];
 
   const getTranslatedGalleryName = (name) => {
-    const currentLang = lang || localStorage.getItem('language') || 'en';
+    const lang = i18n.language || 'ru';
     if (typeof name === 'string') return name;
-    return name[currentLang] || name.en || '';
+    return name[lang] || name.en || '';
   };
 
   useEffect(() => {
@@ -71,6 +60,7 @@ function HomePage() {
 
   return (
     <>
+      {/* HERO CAROUSEL */}
       <Container fluid className="p-0 mb-5">
         <Carousel fade>
           <Carousel.Item>
@@ -132,6 +122,7 @@ function HomePage() {
         </Carousel>
       </Container>
 
+      {/* СЧЁТЧИКИ */}
       <Container className="mb-5">
         <Row className="g-4 text-center">
           {[
@@ -153,6 +144,7 @@ function HomePage() {
         </Row>
       </Container>
 
+      {/* НАШИ ТОВАРЫ */}
       <Container className="mb-5">
         <div className="text-center mb-4">
           <h1 className="display-5">{t('ourProducts')}</h1>
@@ -186,6 +178,7 @@ function HomePage() {
         </Row>
       </Container>
 
+      {/* МЕДИАГАЛЕРЕЯ */}
       <Container className="mb-5">
         <Card className="shadow-sm">
           <Card.Body>
@@ -213,6 +206,7 @@ function HomePage() {
         </Card>
       </Container>
 
+      {/* ПРОМО 50% OFF */}
       <Container className="mb-5">
         <Card
           className="text-white border-0"
@@ -224,9 +218,7 @@ function HomePage() {
           <Card.Body className="d-flex flex-column justify-content-center align-items-center text-center p-5">
             <h1 className="display-3 fw-bold text-warning">50% {t('off')}</h1>
             <h2 className="display-5 mb-3">{t('weekendTrendySofa')}</h2>
-            <p className="lead mb-4">
-              {t('heroLine1')} {t('heroLine2')}
-            </p>
+            <p className="lead mb-4">{t('heroLine1')} {t('heroLine2')}</p>
             <Button as={Link} to="/catalog" variant="warning" size="lg">
               {t('viewItems')}
             </Button>
@@ -234,6 +226,7 @@ function HomePage() {
         </Card>
       </Container>
 
+      {/* КАРТА */}
       <Container className="mb-5">
         <Card className="shadow-sm">
           <Card.Body>

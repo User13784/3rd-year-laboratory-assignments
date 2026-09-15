@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import { addToCartAsync, selectCartItems } from '../../features/cart/cartSlice';
 import {
@@ -9,17 +10,15 @@ import {
   selectFavorites
 } from '../../features/favorites/favoritesSlice';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
-import { useLanguage } from '../../context/LanguageContext';
 import { useNotification } from '../../hooks/useNotification';
 import Notification from '../common/Notification';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { t, lang } = useLanguage();
+  const { t, i18n } = useTranslation();
   const { notification, showSuccess, showError, showWarning, hideNotification } = useNotification();
 
-  // ===== REDUX STATE =====
   const cartItems = useAppSelector(selectCartItems);
   const favorites = useAppSelector(selectFavorites);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -27,10 +26,10 @@ function ProductCard({ product }) {
 
   // ===== ПЕРЕВОДЫ =====
   const getTranslatedName = () => {
-    const currentLang = lang || localStorage.getItem('language') || 'en';
+    const lang = i18n.language || 'ru';
     if (!product.name) return 'Product';
     if (typeof product.name === 'string') return product.name;
-    return product.name[currentLang] || product.name.en || 'Product';
+    return product.name[lang] || product.name.en || 'Product';
   };
 
   const getTranslatedCategory = () => {
@@ -50,9 +49,9 @@ function ProductCard({ product }) {
   // ===== АВТОРИЗАЦИЯ =====
   const requireAuth = (actionName) => {
     if (!isAuthenticated) {
-      showWarning(`🔒 Для "${actionName}" необходимо войти в аккаунт`);
+      showWarning(`🔒 ${t('loginRequired')}: "${actionName}"`);
       setTimeout(() => {
-        const goToLogin = window.confirm('Перейти на страницу входа?');
+        const goToLogin = window.confirm(t('goToLoginConfirm'));
         if (goToLogin) navigate('/register');
       }, 500);
       return false;
@@ -63,14 +62,14 @@ function ProductCard({ product }) {
   // ===== ИЗБРАННОЕ =====
   const toggleFavorite = async (e) => {
     e.stopPropagation();
-    if (!requireAuth('добавления в избранное')) return;
+    if (!requireAuth(t('favorites'))) return;
 
     try {
       if (isFavorite) {
         const favItem = favorites.find(f => f.productId === product.id);
         if (favItem) {
           await dispatch(removeFromFavorites(favItem.id)).unwrap();
-          showSuccess(`❤️ "${getTranslatedName()}" удалено из избранного`);
+          showSuccess(`❤️ "${getTranslatedName()}" ${t('removedFromFavorites')}`);
         }
       } else {
         await dispatch(addToFavorites({
@@ -83,24 +82,24 @@ function ProductCard({ product }) {
           inStock: product.inStock !== undefined ? product.inStock : true,
           description: product.description || { en: '', ru: '' }
         })).unwrap();
-        showSuccess(`❤️ "${getTranslatedName()}" добавлено в избранное`);
+        showSuccess(`❤️ "${getTranslatedName()}" ${t('addedToFavorites')}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      showError('Ошибка при работе с избранным');
+      showError(t('errorFavorite'));
     }
   };
 
   // ===== КОРЗИНА =====
   const addToCart = async (e) => {
     e.stopPropagation();
-    if (!requireAuth('добавления в корзину')) return;
+    if (!requireAuth(t('cart'))) return;
 
     try {
       const existing = cartItems.find(i => i.productId === product.id);
 
       if (existing) {
-        showWarning('Товар уже в корзине');
+        showWarning(t('alreadyInCart'));
         return;
       }
 
@@ -112,10 +111,10 @@ function ProductCard({ product }) {
         quantity: 1
       })).unwrap();
 
-      showSuccess(`🛒 "${getTranslatedName()}" добавлен в корзину!`);
+      showSuccess(`🛒 "${getTranslatedName()}" ${t('addedToCart')}`);
     } catch (error) {
       console.error('Error:', error);
-      showError('Ошибка добавления в корзину');
+      showError(t('errorCart'));
     }
   };
 
@@ -164,7 +163,7 @@ function ProductCard({ product }) {
                 zIndex: 5
               }}
             >
-              ⭐ Топ
+              {t('topProduct')}
             </span>
           )}
         </div>
@@ -210,7 +209,7 @@ function ProductCard({ product }) {
                 whiteSpace: 'nowrap'
               }}
             >
-              {product.inStock ? '✓ В наличии' : '✗ Нет в наличии'}
+              {product.inStock ? t('inStock') : t('outOfStock')}
             </span>
           </div>
 
@@ -220,7 +219,7 @@ function ProductCard({ product }) {
             onClick={addToCart}
             disabled={!product.inStock}
           >
-            🛒 В корзину
+            🛒 {t('addToCart')}
           </Button>
         </Card.Body>
       </Card>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 function Footer() {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -25,10 +25,18 @@ function Footer() {
           <Col md={6} lg={3}>
             <h5 className="text-info">{t('explore')}</h5>
             <ul className="list-unstyled">
-              <li className="mb-2"><Link to="/" className="text-light text-decoration-none">🏠 {t('home')}</Link></li>
-              <li className="mb-2"><Link to="/catalog" className="text-light text-decoration-none">🛍️ {t('shop')}</Link></li>
-              <li className="mb-2"><Link to="/favorites" className="text-light text-decoration-none">❤️ {t('favorites')}</Link></li>
-              <li className="mb-2"><Link to="/feedback" className="text-light text-decoration-none">💬 {t('reviews')}</Link></li>
+              <li className="mb-2">
+                <Link to="/" className="text-light text-decoration-none">🏠 {t('home')}</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/catalog" className="text-light text-decoration-none">🛍️ {t('shop')}</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/favorites" className="text-light text-decoration-none">❤️ {t('favorites')}</Link>
+              </li>
+              <li className="mb-2">
+                <Link to="/feedback" className="text-light text-decoration-none">💬 {t('reviews')}</Link>
+              </li>
             </ul>
           </Col>
 
