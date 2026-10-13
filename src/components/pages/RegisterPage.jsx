@@ -2,29 +2,33 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Form, Button, Alert, Tab, Tabs } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from '../../hooks/reduxHooks';
-import { loginSuccess } from '../../features/auth/authSlice';
-import { fetchCart } from '../../features/cart/cartSlice';
-import { fetchFavorites } from '../../features/favorites/favoritesSlice';
-import { api } from '../../services/api';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import {
+  loginSuccess,
+  selectAllUsers
+} from '../../features/auth/authSlice';
+import {
+  loadUserCart
+} from '../../features/cart/cartSlice';
+import {
+  loadUserFavorites
+} from '../../features/favorites/favoritesSlice';
 
 function RegisterPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const [key, setKey] = useState('login');
+  const allUsers = useAppSelector(selectAllUsers);   
 
+  const [key, setKey] = useState('login');
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [loginError, setLoginError] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
-
   const [registerData, setRegisterData] = useState({
     firstName: '', lastName: '', email: '', password: ''
   });
   const [registerError, setRegisterError] = useState('');
-  const [registerLoading, setRegisterLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setLoginError('');
 
@@ -33,40 +37,31 @@ function RegisterPage() {
       return;
     }
 
-    setLoginLoading(true);
-    try {
-      const user = await api.loginUser(loginData.email);
+    const user = allUsers.find(u => u.email === loginData.email);
 
-      if (!user) {
-        setLoginError(t('userNotFound'));
-        setLoginLoading(false);
-        return;
-      }
-
-      if (user.password !== loginData.password) {
-        setLoginError(t('wrongPassword'));
-        setLoginLoading(false);
-        return;
-      }
-
-      dispatch(loginSuccess(user));
-      await dispatch(fetchCart());
-      await dispatch(fetchFavorites());
-
-      navigate('/catalog');
-      alert(
-        user.role === 'admin'
-          ? `${t('welcomeAdmin')}, ${user.firstName}!`
-          : `${t('welcomeUser')}, ${user.firstName}!`
-      );
-    } catch (error) {
-      console.error('Login error:', error);
-      setLoginError(t('loginError'));
+    if (!user) {
+      setLoginError(t('userNotFound'));
+      return;
     }
-    setLoginLoading(false);
+
+    if (user.password !== loginData.password) {
+      setLoginError(t('wrongPassword'));
+      return;
+    }
+
+    dispatch(loginSuccess(user));
+    dispatch(loadUserCart());        
+    dispatch(loadUserFavorites());    
+
+    navigate('/catalog');
+    alert(
+      user.role === 'admin'
+        ? `${t('welcomeAdmin')}, ${user.firstName}!`
+        : `${t('welcomeUser')}, ${user.firstName}!`
+    );
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault();
     setRegisterError('');
 
@@ -81,35 +76,24 @@ function RegisterPage() {
       return;
     }
 
-    setRegisterLoading(true);
-    try {
-      const existing = await api.loginUser(registerData.email);
-      if (existing) {
-        setRegisterError(t('emailTaken'));
-        setRegisterLoading(false);
-        return;
-      }
-
-      const newUser = {
-        id: Date.now().toString(),
-        ...registerData,
-        role: 'user',
-        createdAt: new Date().toISOString()
-      };
-
-      const created = await api.registerUser(newUser);
-
-      dispatch(loginSuccess(created));
-      await dispatch(fetchCart());
-      await dispatch(fetchFavorites());
-
-      navigate('/catalog');
-      alert(`${t('registerSuccess')}, ${created.firstName}!`);
-    } catch (error) {
-      console.error('Register error:', error);
-      setRegisterError(t('registerError'));
+    const existing = allUsers.find(u => u.email === registerData.email);
+    if (existing) {
+      setRegisterError(t('emailTaken'));
+      return;
     }
-    setRegisterLoading(false);
+
+    // ⚠️ Регистрация новых пользователей пока не сохраняется
+    // (потому что нет бэкенда). Можно добавить сохранение в localStorage.
+    const newUser = {
+      id: Date.now().toString(),
+      ...registerData,
+      role: 'user',
+      createdAt: new Date().toISOString()
+    };
+
+    dispatch(loginSuccess(newUser));
+    navigate('/catalog');
+    alert(`${t('registerSuccess')}, ${newUser.firstName}!`);
   };
 
   return (
@@ -138,19 +122,13 @@ function RegisterPage() {
                   <Form.Label>{t('password')}</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder={t('password')}
                     value={loginData.password}
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                   />
                 </Form.Group>
 
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="w-100"
-                  disabled={loginLoading}
-                >
-                  {loginLoading ? t('loadingLogin') : t('loginBtn')}
+                <Button variant="primary" type="submit" className="w-100">
+                  {t('loginBtn')}
                 </Button>
 
                 <div className="text-center mt-3 text-muted small">
@@ -169,7 +147,6 @@ function RegisterPage() {
                   <Form.Label>{t('firstName')}</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Иван"
                     value={registerData.firstName}
                     onChange={(e) => setRegisterData({ ...registerData, firstName: e.target.value })}
                   />
@@ -179,7 +156,6 @@ function RegisterPage() {
                   <Form.Label>{t('lastName')}</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Петров"
                     value={registerData.lastName}
                     onChange={(e) => setRegisterData({ ...registerData, lastName: e.target.value })}
                   />
@@ -189,7 +165,6 @@ function RegisterPage() {
                   <Form.Label>{t('email')}</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="example@mail.com"
                     value={registerData.email}
                     onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
                   />
@@ -199,19 +174,13 @@ function RegisterPage() {
                   <Form.Label>{t('password')}</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder={t('passwordMin')}
                     value={registerData.password}
                     onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                   />
                 </Form.Group>
 
-                <Button
-                  variant="success"
-                  type="submit"
-                  className="w-100"
-                  disabled={registerLoading}
-                >
-                  {registerLoading ? t('loadingRegister') : t('registerBtn')}
+                <Button variant="success" type="submit" className="w-100">
+                  {t('registerBtn')}
                 </Button>
               </Form>
             </Tab>

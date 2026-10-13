@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Container, Row, Col, Form, Button, Badge, Alert,
-  Spinner, ButtonGroup, InputGroup, Pagination
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Alert,
+  ButtonGroup,
+  InputGroup,
+  Pagination
 } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
-  fetchProducts,
-  deleteProductAsync,
+  deleteProduct,
   selectFilteredProducts,
-  selectProductsLoading,
   selectSearchTerm,
   selectCategory,
   selectSortBy,
@@ -18,7 +23,7 @@ import {
   setCategory,
   setSortBy
 } from '../../features/products/productsSlice';
-import { addToCartAsync, selectCartItems } from '../../features/cart/cartSlice';
+import { addItem, selectCartItems } from '../../features/cart/cartSlice';
 import { selectIsAdmin, selectIsAuthenticated } from '../../features/auth/authSlice';
 import ProductCard from '../product/ProductCard';
 import ProductModal from '../product/ProductModal';
@@ -30,9 +35,7 @@ function CatalogPage() {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  // ===== REDUX =====
   const products = useAppSelector(selectFilteredProducts);
-  const loading = useAppSelector(selectProductsLoading);
   const searchTerm = useAppSelector(selectSearchTerm);
   const selectedCategory = useAppSelector(selectCategory);
   const sortBy = useAppSelector(selectSortBy);
@@ -40,7 +43,6 @@ function CatalogPage() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const cartItems = useAppSelector(selectCartItems);
 
-  // ===== LOCAL STATE =====
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -49,10 +51,6 @@ function CatalogPage() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
 
   const openProductModal = (product) => {
     setSelectedProduct(product);
@@ -79,7 +77,7 @@ function CatalogPage() {
     setEditingProduct(null);
   };
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = (product) => {
     if (!isAuthenticated) {
       alert(t('loginRequired'));
       return;
@@ -92,13 +90,12 @@ function CatalogPage() {
         return;
       }
 
-      await dispatch(addToCartAsync({
+      dispatch(addItem({
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
-        quantity: 1
-      })).unwrap();
+        image: product.image
+      }));
 
       alert(`✅ ${t('addedToCart')}`);
     } catch (error) {
@@ -122,16 +119,16 @@ function CatalogPage() {
     }
   };
 
-  const deleteSelected = async () => {
+  const deleteSelected = () => {
     if (!isAdmin) return;
     if (selectedProducts.length === 0) return;
 
     if (!window.confirm(`${t('confirmDelete')} ${selectedProducts.length} ${t('confirmDeleteEnd')}`)) return;
 
     try {
-      for (const id of selectedProducts) {
-        await dispatch(deleteProductAsync(id)).unwrap();
-      }
+      selectedProducts.forEach(id => {
+        dispatch(deleteProduct(id));
+      });
       setSelectedProducts([]);
       alert('✅ ' + t('productsDeleted'));
     } catch (error) {
@@ -263,12 +260,7 @@ function CatalogPage() {
         </Alert>
       )}
 
-      {loading ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3">{t('loadingProducts')}</p>
-        </div>
-      ) : products.length === 0 ? (
+      {products.length === 0 ? (
         <Alert variant="info" className="text-center">
           <h4>{t('noProducts')}</h4>
           <p>{t('noProductsHint')}</p>

@@ -63,7 +63,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={getTranslatedName()} size="lg">
       <Row>
-        {/* Изображение */}
         <Col md={5} className="text-center mb-3 mb-md-0">
           <img
             src={product.image || '/assets/images/placeholder.jpg'}
@@ -74,9 +73,7 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
           />
         </Col>
 
-        {/* Информация */}
         <Col md={7}>
-          {/* Категория — бейдж с полным текстом */}
           <div style={{ marginBottom: '10px' }}>
             <span
               style={{
@@ -105,7 +102,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
 
           <p className="text-muted">{getTranslatedDescription()}</p>
 
-          {/* Наличие — бейдж с полным текстом */}
           <div style={{ marginBottom: '15px' }}>
             <span
               style={{
@@ -141,7 +137,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
             </ListGroup.Item>
           </ListGroup>
 
-          {/* Предупреждение для гостей */}
           {!isAuthenticated && (
             <div
               className="alert alert-warning small"
@@ -151,7 +146,6 @@ function ProductModal({ product, isOpen, onClose, onAddToCart }) {
             </div>
           )}
 
-          {/* Кнопка "В корзину" */}
           <Button
             variant="primary"
             size="lg"

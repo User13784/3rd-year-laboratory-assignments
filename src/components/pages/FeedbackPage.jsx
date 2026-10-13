@@ -1,23 +1,12 @@
-import React, { useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Alert, Spinner } from 'react-bootstrap';
+import React from 'react';
+import { Container, Row, Col, Card, Badge, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import {
-  fetchFeedback,
-  selectFeedback,
-  selectFeedbackLoading
-} from '../../features/feedback/feedbackSlice';
+import { useAppSelector } from '../../hooks/reduxHooks';
+import { selectFeedback } from '../../features/feedback/feedbackSlice';
 
 function FeedbackPage() {
-  const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
-
   const feedback = useAppSelector(selectFeedback);
-  const loading = useAppSelector(selectFeedbackLoading);
-
-  useEffect(() => {
-    dispatch(fetchFeedback());
-  }, [dispatch]);
 
   const getTranslatedText = (text) => {
     const lang = i18n.language || 'ru';
@@ -51,15 +40,6 @@ function FeedbackPage() {
       minute: '2-digit'
     });
   };
-
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3">{t('loadingProducts')}</p>
-      </Container>
-    );
-  }
 
   const avgRating = feedback.length > 0
     ? (feedback.reduce((sum, r) => sum + (r.rating || 0), 0) / feedback.length).toFixed(1)

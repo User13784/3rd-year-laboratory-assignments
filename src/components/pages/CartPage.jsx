@@ -1,15 +1,13 @@
-import React, { useEffect } from 'react';
-import { Container, Table, Button, Badge, Alert, Spinner } from 'react-bootstrap';
+import React from 'react';
+import { Container, Table, Button, Badge, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
-  fetchCart,
-  updateCartQuantity,
-  removeFromCartAsync,
+  updateQuantity,
+  removeItem,
   selectCartItems,
-  selectCartTotal,
-  selectCartLoading
+  selectCartTotal
 } from '../../features/cart/cartSlice';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
 
@@ -19,25 +17,18 @@ function CartPage() {
 
   const cartItems = useAppSelector(selectCartItems);
   const total = useAppSelector(selectCartTotal);
-  const loading = useAppSelector(selectCartLoading);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchCart());
-    }
-  }, [dispatch, isAuthenticated]);
-
-  const updateQuantity = (id, quantity) => {
+  const handleUpdateQuantity = (id, quantity) => {
     if (quantity < 1) {
-      dispatch(removeFromCartAsync(id));
+      dispatch(removeItem(id));
       return;
     }
-    dispatch(updateCartQuantity({ id, quantity }));
+    dispatch(updateQuantity({ id, quantity }));
   };
 
-  const removeItem = (id) => {
-    dispatch(removeFromCartAsync(id));
+  const handleRemove = (id) => {
+    dispatch(removeItem(id));
   };
 
   const getTranslatedName = (name) => {
@@ -57,15 +48,6 @@ function CartPage() {
         <Button as={Link} to="/register" variant="primary" size="lg">
           👤 {t('login')}
         </Button>
-      </Container>
-    );
-  }
-
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }
@@ -117,7 +99,7 @@ function CartPage() {
                   <Button
                     size="sm"
                     variant="outline-secondary"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                   >
                     −
                   </Button>
@@ -125,7 +107,7 @@ function CartPage() {
                   <Button
                     size="sm"
                     variant="outline-secondary"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                   >
                     +
                   </Button>
@@ -135,7 +117,7 @@ function CartPage() {
                 £{(item.price * item.quantity).toFixed(2)}
               </td>
               <td>
-                <Button size="sm" variant="danger" onClick={() => removeItem(item.id)}>
+                <Button size="sm" variant="danger" onClick={() => handleRemove(item.id)}>
                   🗑️
                 </Button>
               </td>

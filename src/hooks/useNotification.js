@@ -25,7 +25,6 @@ export function useNotification() {
     notification,
     showNotification,
     hideNotification,
-    // Удобные сокращения
     showSuccess: (msg) => showNotification(msg, 'success', '✅ Успех'),
     showError: (msg) => showNotification(msg, 'danger', '❌ Ошибка'),
     showWarning: (msg) => showNotification(msg, 'warning', '⚠️ Внимание'),

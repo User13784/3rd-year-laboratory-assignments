@@ -1,28 +1,16 @@
-import React, { useEffect } from 'react';
-import { Container, Row, Col, Alert, Button, Spinner } from 'react-bootstrap';
+import React from 'react';
+import { Container, Row, Col, Alert, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import {
-  fetchFavorites,
-  selectFavorites,
-  selectFavoritesLoading
-} from '../../features/favorites/favoritesSlice';
+import { useAppSelector } from '../../hooks/reduxHooks';
+import { selectFavorites } from '../../features/favorites/favoritesSlice';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
 import ProductCard from '../product/ProductCard';
 
 function FavoritesPage() {
-  const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const favorites = useAppSelector(selectFavorites);
-  const loading = useAppSelector(selectFavoritesLoading);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchFavorites());
-    }
-  }, [dispatch, isAuthenticated]);
 
   if (!isAuthenticated) {
     return (
@@ -34,15 +22,6 @@ function FavoritesPage() {
         <Button as={Link} to="/register" variant="primary" size="lg">
           👤 {t('login')}
         </Button>
-      </Container>
-    );
-  }
-
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" variant="danger" />
-        <p className="mt-3">{t('loadingProducts')}</p>
       </Container>
     );
   }

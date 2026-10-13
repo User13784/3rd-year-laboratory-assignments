@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Card, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { addToCartAsync, selectCartItems } from '../../features/cart/cartSlice';
+import { addItem, selectCartItems } from '../../features/cart/cartSlice';
 import {
-  addToFavorites,
-  removeFromFavorites,
+  addFavorite,
+  removeFavorite,
   selectFavorites
 } from '../../features/favorites/favoritesSlice';
 import { selectIsAuthenticated } from '../../features/auth/authSlice';
@@ -19,13 +19,11 @@ function ProductCard({ product }) {
   const { t, i18n } = useTranslation();
   const { notification, showSuccess, showError, showWarning, hideNotification } = useNotification();
 
-  // ===== REDUX STATE =====
   const cartItems = useAppSelector(selectCartItems);
   const favorites = useAppSelector(selectFavorites);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isFavorite = favorites.some(f => f.productId === product.id);
 
-  // ===== ПЕРЕВОДЫ =====
   const getTranslatedName = () => {
     const lang = i18n.language || 'ru';
     if (!product.name) return t('product');
@@ -47,7 +45,6 @@ function ProductCard({ product }) {
     return key ? t(key) : (product.category || 'General');
   };
 
-  // ===== АВТОРИЗАЦИЯ =====
   const requireAuth = (actionName) => {
     if (!isAuthenticated) {
       showWarning(`🔒 ${t('loginRequired')}: "${actionName}"`);
@@ -60,8 +57,7 @@ function ProductCard({ product }) {
     return true;
   };
 
-  // ===== ИЗБРАННОЕ =====
-  const toggleFavorite = async (e) => {
+  const toggleFavorite = (e) => {
     e.stopPropagation();
     if (!requireAuth(t('favorites'))) return;
 
@@ -69,11 +65,11 @@ function ProductCard({ product }) {
       if (isFavorite) {
         const favItem = favorites.find(f => f.productId === product.id);
         if (favItem) {
-          await dispatch(removeFromFavorites(favItem.id)).unwrap();
+          dispatch(removeFavorite(favItem.id));
           showSuccess(`❤️ "${getTranslatedName()}" ${t('removedFromFavorites')}`);
         }
       } else {
-        await dispatch(addToFavorites({
+        dispatch(addFavorite({
           productId: product.id,
           name: product.name,
           price: product.price,
@@ -82,7 +78,7 @@ function ProductCard({ product }) {
           rating: product.rating || 5,
           inStock: product.inStock !== undefined ? product.inStock : true,
           description: product.description || { en: '', ru: '' }
-        })).unwrap();
+        }));
         showSuccess(`❤️ "${getTranslatedName()}" ${t('addedToFavorites')}`);
       }
     } catch (error) {
@@ -91,8 +87,7 @@ function ProductCard({ product }) {
     }
   };
 
-  // ===== КОРЗИНА =====
-  const addToCart = async (e) => {
+  const addToCart = (e) => {
     e.stopPropagation();
     if (!requireAuth(t('cart'))) return;
 
@@ -104,13 +99,12 @@ function ProductCard({ product }) {
         return;
       }
 
-      await dispatch(addToCartAsync({
+      dispatch(addItem({
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
-        quantity: 1
-      })).unwrap();
+        image: product.image
+      }));
 
       showSuccess(`🛒 "${getTranslatedName()}" ${t('addedToCart')}`);
     } catch (error) {
@@ -142,7 +136,6 @@ function ProductCard({ product }) {
             onError={(e) => { e.target.src = '/assets/images/placeholder.jpg'; }}
           />
 
-          {/* Кнопка избранного */}
           <Button
             variant={isFavorite ? 'danger' : 'light'}
             size="sm"
@@ -153,7 +146,6 @@ function ProductCard({ product }) {
             {isFavorite ? '❤️' : '🤍'}
           </Button>
 
-          {/* Бейдж "Топ" */}
           {product.rating >= 4.5 && (
             <span
               style={{
@@ -184,7 +176,6 @@ function ProductCard({ product }) {
         <Card.Body className="d-flex flex-column">
           <Card.Title className="fs-6">{getTranslatedName()}</Card.Title>
 
-          {/* Бейдж категории — полный текст */}
           <div style={{ marginBottom: '10px' }}>
             <span
               style={{
@@ -215,7 +206,6 @@ function ProductCard({ product }) {
             {generateStars(product.rating)}
           </div>
 
-          {/* Бейдж наличия — полный текст */}
           <div style={{ marginBottom: '12px' }}>
             <span
               style={{
@@ -238,7 +228,6 @@ function ProductCard({ product }) {
             </span>
           </div>
 
-          {/* Кнопка "В корзину" */}
           <Button
             variant="primary"
             className="mt-auto w-100"

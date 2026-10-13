@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Container, Row, Col, Card, Button, Table, Badge, Alert,
-  Spinner, Tabs, Tab, Form, InputGroup
+  Tabs, Tab, Form, InputGroup
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
 import {
-  fetchProducts,
-  deleteProductAsync,
-  selectAllProducts,
-  selectProductsLoading
+  deleteProduct,
+  selectAllProducts
 } from '../../features/products/productsSlice';
 import {
-  fetchFeedback,
   deleteFeedback,
-  selectFeedback,
-  selectFeedbackLoading
+  selectFeedback
 } from '../../features/feedback/feedbackSlice';
 import {
   selectUser,
@@ -30,22 +26,13 @@ function AdminPage() {
   const { t } = useTranslation();
 
   const products = useAppSelector(selectAllProducts);
-  const productsLoading = useAppSelector(selectProductsLoading);
   const feedback = useAppSelector(selectFeedback);
-  const feedbackLoading = useAppSelector(selectFeedbackLoading);
   const user = useAppSelector(selectUser);
   const isAdmin = useAppSelector(selectIsAdmin);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
-
-  useEffect(() => {
-    if (isAdmin) {
-      dispatch(fetchProducts());
-      dispatch(fetchFeedback());
-    }
-  }, [dispatch, isAdmin]);
 
   if (!isAuthenticated) {
     return (
@@ -74,37 +61,16 @@ function AdminPage() {
     );
   }
 
-  if (productsLoading || feedbackLoading) {
-    return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-3">{t('loadingProducts')}</p>
-      </Container>
-    );
-  }
-
-  const handleDeleteProduct = async (productId, productName) => {
+  const handleDeleteProduct = (productId, productName) => {
     if (!window.confirm(`${t('confirmDelete')} "${productName}"?`)) return;
-
-    try {
-      await dispatch(deleteProductAsync(productId)).unwrap();
-      alert('✅ ' + t('productsDeleted'));
-    } catch (error) {
-      console.error('Error:', error);
-      alert('❌ ' + t('errorDeleting'));
-    }
+    dispatch(deleteProduct(productId));
+    alert('✅ ' + t('productsDeleted'));
   };
 
-  const handleDeleteFeedback = async (feedbackId) => {
+  const handleDeleteFeedback = (feedbackId) => {
     if (!window.confirm(t('confirmDelete') + '?')) return;
-
-    try {
-      await dispatch(deleteFeedback(feedbackId)).unwrap();
-      alert('✅ ' + t('productsDeleted'));
-    } catch (error) {
-      console.error('Error:', error);
-      alert('❌ ' + t('errorDeleting'));
-    }
+    dispatch(deleteFeedback(feedbackId));
+    alert('✅ ' + t('productsDeleted'));
   };
 
   const filteredProducts = products.filter(product => {

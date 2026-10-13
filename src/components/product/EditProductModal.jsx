@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../hooks/reduxHooks';
-import { updateProductAsync } from '../../features/products/productsSlice';
+import { updateProduct } from '../../features/products/productsSlice';
 
 function EditProductModal({ product, isOpen, onClose }) {
   const dispatch = useAppDispatch();
@@ -23,6 +23,7 @@ function EditProductModal({ product, isOpen, onClose }) {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
+  // Заполняем форму при открытии
   useEffect(() => {
     if (product) {
       setFormData({
@@ -61,7 +62,8 @@ function EditProductModal({ product, isOpen, onClose }) {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = async (e) => {
+  // ===== СОХРАНЕНИЕ (СИНХРОННО) =====
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -77,10 +79,8 @@ function EditProductModal({ product, isOpen, onClose }) {
         rating: parseFloat(formData.rating) || 5
       };
 
-      await dispatch(updateProductAsync({
-        id: product.id,
-        data: updatedProduct
-      })).unwrap();
+      // ✅ Синхронный dispatch — без async/await
+      dispatch(updateProduct(updatedProduct));
 
       setSuccess(true);
       setTimeout(() => onClose(), 1000);

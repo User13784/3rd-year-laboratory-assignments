@@ -5,7 +5,6 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
-      // Header
       login: 'LOGIN',
       signup: 'SIGN UP',
       mailing: 'MAILING LIST',
@@ -14,14 +13,12 @@ const resources = {
       logout: 'Logout',
       logoutConfirm: 'Logout from account?',
 
-      // Sidebar
       home: 'Home',
       shop: 'Shop',
       favorites: 'Favorites',
       reviews: 'Reviews',
       admin: 'Admin',
 
-      // Catalog
       ourCatalog: 'Our Catalog',
       catalogSubtitle: 'Choose the perfect furniture for your home',
       searchPlaceholder: '🔍 Search products...',
@@ -51,7 +48,6 @@ const resources = {
       topProduct: '⭐ Top',
       editProduct: '✏️ Edit',
 
-      // Categories
       catAll: 'All',
       catSofa: 'Sofa',
       catLiving: 'Living',
@@ -61,7 +57,6 @@ const resources = {
       catDecor: 'Decor',
       catCeramics: 'Ceramics',
 
-      // Cart
       shoppingCart: '🛒 Shopping Cart',
       emptyCart: '🛍️ Cart is empty',
       emptyCartHint: 'Add items to cart to checkout',
@@ -76,14 +71,12 @@ const resources = {
       checkout: '✅ Checkout',
       cartLoginRequired: 'Log in to view your cart',
 
-      // Favorites
       favoritesTitle: '❤️ Favorites',
       favoritesSubtitle: 'Your favorite items',
       emptyFavorites: '😔 Favorites is empty',
       emptyFavoritesHint: 'Add items to favorites to see them here',
       items: 'items',
 
-      // Feedback
       reviewsTitle: '⭐ Customer Reviews',
       reviewsSubtitle: 'Share your opinion about products',
       noReviews: '💬 No reviews yet',
@@ -92,7 +85,6 @@ const resources = {
       avgRating: 'Average rating:',
       rating: 'Rating',
 
-      // Register
       account: '🔐 Account',
       loginTab: 'Login',
       registerTab: 'Register',
@@ -117,7 +109,6 @@ const resources = {
       welcomeUser: '✅ Welcome',
       registerSuccess: '✅ Registration successful! Welcome',
 
-      // HomePage
       heroSmall: 'Save The Weekend',
       heroMedium: 'Awesome design',
       heroLine1: 'Best Furniture For',
@@ -144,13 +135,11 @@ const resources = {
       awards: 'Awards',
       yearsExperience: 'Years Experience',
 
-      // 404
       notFoundTitle: 'Page not found',
       notFoundText: 'Sorry, the page you are looking for does not exist or has been moved.',
       goHome: '🏠 Go home',
       goToCatalogBtn: '🛍️ To catalog',
 
-      // Footer
       footerAbout: 'Best furniture for your interior. Quality and style since 2000.',
       explore: 'Explore',
       contacts: 'Contacts',
@@ -160,7 +149,6 @@ const resources = {
       sunday: 'Sunday: Closed',
       allRightsReserved: 'All Rights Reserved.',
 
-      // Modal
       close: 'Close',
       editProductTitle: '✏️ Edit Product',
       save: '💾 Save',
@@ -179,7 +167,6 @@ const resources = {
       productInfo: 'Product info',
       addProductTitle: '➕ Add Product',
 
-      // Notifications
       addedToCart: 'added to cart!',
       addedToFavorites: 'added to favorites!',
       removedFromFavorites: 'removed from favorites',
@@ -197,7 +184,6 @@ const resources = {
       errorAdding: 'Error adding product',
       alreadyInCart: 'Already in cart',
 
-      // Admin
       adminPanel: '👑 Admin Panel',
       adminSubtitle: 'Manage products and reviews',
       dashboard: '📊 Dashboard',
@@ -208,14 +194,12 @@ const resources = {
       preview: 'Preview',
       searchProducts: 'Search products...',
 
-      // Language / Theme
       theme: 'Theme',
       language: 'Language'
     }
   },
   ru: {
     translation: {
-      // Header
       login: 'ВОЙТИ',
       signup: 'РЕГИСТРАЦИЯ',
       mailing: 'РАССЫЛКА',
@@ -224,14 +208,12 @@ const resources = {
       logout: 'Выйти',
       logoutConfirm: 'Выйти из аккаунта?',
 
-      // Sidebar
       home: 'Главная',
       shop: 'Магазин',
       favorites: 'Избранное',
       reviews: 'Отзывы',
       admin: 'Админ',
 
-      // Catalog
       ourCatalog: 'Наш Каталог',
       catalogSubtitle: 'Выберите идеальную мебель для вашего дома',
       searchPlaceholder: '🔍 Поиск товаров...',
@@ -261,7 +243,6 @@ const resources = {
       topProduct: '⭐ Топ',
       editProduct: '✏️ Редактировать',
 
-      // Categories
       catAll: 'Все',
       catSofa: 'Диваны',
       catLiving: 'Гостиная',
@@ -271,7 +252,6 @@ const resources = {
       catDecor: 'Декор',
       catCeramics: 'Керамика',
 
-      // Cart
       shoppingCart: '🛒 Корзина покупок',
       emptyCart: '🛍️ Корзина пуста',
       emptyCartHint: 'Добавьте товары в корзину, чтобы оформить заказ',
@@ -286,14 +266,12 @@ const resources = {
       checkout: '✅ Оформить заказ',
       cartLoginRequired: 'Войдите, чтобы просмотреть корзину',
 
-      // Favorites
       favoritesTitle: '❤️ Избранное',
       favoritesSubtitle: 'Ваши любимые товары',
       emptyFavorites: '😔 В избранном пока пусто',
       emptyFavoritesHint: 'Добавляйте товары в избранное, чтобы они появились здесь',
       items: 'товаров',
 
-      // Feedback
       reviewsTitle: '⭐ Отзывы покупателей',
       reviewsSubtitle: 'Поделитесь своим мнением о товарах',
       noReviews: '💬 Пока нет отзывов',
@@ -302,7 +280,6 @@ const resources = {
       avgRating: 'Средний рейтинг:',
       rating: 'Рейтинг',
 
-      // Register
       account: '🔐 Аккаунт',
       loginTab: 'Вход',
       registerTab: 'Регистрация',
@@ -327,7 +304,6 @@ const resources = {
       welcomeUser: '✅ Добро пожаловать',
       registerSuccess: '✅ Регистрация успешна! Добро пожаловать',
 
-      // HomePage
       heroSmall: 'Спасите выходные',
       heroMedium: 'Потрясающий дизайн',
       heroLine1: 'Лучшая мебель для',
@@ -354,13 +330,11 @@ const resources = {
       awards: 'Наград',
       yearsExperience: 'Лет опыта',
 
-      // 404
       notFoundTitle: 'Страница не найдена',
       notFoundText: 'Извините, страница, которую вы ищете, не существует или была перемещена.',
       goHome: '🏠 На главную',
       goToCatalogBtn: '🛍️ В каталог',
 
-      // Footer
       footerAbout: 'Лучшая мебель для вашего интерьера. Качество и стиль с 2000 года.',
       explore: 'Исследовать',
       contacts: 'Контакты',
@@ -370,7 +344,6 @@ const resources = {
       sunday: 'Воскресенье: Закрыто',
       allRightsReserved: 'Все права защищены.',
 
-      // Modal
       close: 'Закрыть',
       editProductTitle: '✏️ Редактировать товар',
       save: '💾 Сохранить',
@@ -389,7 +362,6 @@ const resources = {
       productInfo: 'Информация о товаре',
       addProductTitle: '➕ Добавить товар',
 
-      // Notifications
       addedToCart: 'добавлен в корзину!',
       addedToFavorites: 'добавлен в избранное!',
       removedFromFavorites: 'удалён из избранного',
@@ -407,7 +379,6 @@ const resources = {
       errorAdding: 'Ошибка добавления товара',
       alreadyInCart: 'Уже в корзине',
 
-      // Admin
       adminPanel: '👑 Админ-панель',
       adminSubtitle: 'Управление товарами и отзывами',
       dashboard: '📊 Дашборд',
@@ -418,7 +389,6 @@ const resources = {
       preview: 'Превью',
       searchProducts: 'Поиск товаров...',
 
-      // Language / Theme
       theme: 'Тема',
       language: 'Язык'
     }

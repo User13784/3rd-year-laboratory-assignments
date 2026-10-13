@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../hooks/reduxHooks';
-import { createProduct } from '../../features/products/productsSlice';
+import { addProduct } from '../../features/products/productsSlice';
 
 function AddProductModal({ isOpen, onClose }) {
   const dispatch = useAppDispatch();
@@ -42,7 +42,8 @@ function AddProductModal({ isOpen, onClose }) {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = async (e) => {
+  // ===== СОЗДАНИЕ (СИНХРОННО) =====
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -59,7 +60,9 @@ function AddProductModal({ isOpen, onClose }) {
         isFavorite: false
       };
 
-      await dispatch(createProduct(newProduct)).unwrap();
+      // ✅ Синхронный dispatch — без async/await
+      dispatch(addProduct(newProduct));
+
       setSuccess(true);
 
       setTimeout(() => {
@@ -74,9 +77,15 @@ function AddProductModal({ isOpen, onClose }) {
 
   const resetForm = () => {
     setFormData({
-      nameEn: '', nameRu: '', price: '', category: 'sofa',
-      image: '/assets/images/c1.jpg', descriptionEn: '', descriptionRu: '',
-      inStock: true, rating: 5
+      nameEn: '',
+      nameRu: '',
+      price: '',
+      category: 'sofa',
+      image: '/assets/images/c1.jpg',
+      descriptionEn: '',
+      descriptionRu: '',
+      inStock: true,
+      rating: 5
     });
     setErrors({});
     setSuccess(false);

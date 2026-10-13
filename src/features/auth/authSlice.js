@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { initialUsers } from '../../data/initialData';
 
 const initialState = {
   user: JSON.parse(localStorage.getItem('currentUser') || 'null'),
   isAuthenticated: !!localStorage.getItem('currentUser'),
   isAdmin: JSON.parse(localStorage.getItem('currentUser') || 'null')?.role === 'admin',
+  users: initialUsers,   
   loading: false,
   error: null
 };
@@ -37,5 +39,6 @@ export const selectUser = (state) => state.auth.user;
 export const selectUserId = (state) => state.auth.user?.id || null;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsAdmin = (state) => state.auth.isAdmin;
+export const selectAllUsers = (state) => state.auth.users;
 
 export default authSlice.reducer;

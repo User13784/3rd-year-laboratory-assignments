@@ -24,13 +24,11 @@ import RegisterPage from './components/pages/RegisterPage';
 import NotFoundPage from './components/pages/NotFoundPage';
 import './App.css';
 
-// ===== ШАПКА =====
 function Header() {
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
   const { isDark, toggleTheme } = useTheme();
 
-  // ===== REDUX =====
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isAdmin = useAppSelector(selectIsAdmin);
@@ -112,7 +110,6 @@ function Header() {
   );
 }
 
-// ===== ГЛАВНЫЙ КОМПОНЕНТ =====
 function App() {
   const companyName = "Greenery";
   const mainTitle = "Best Furniture For Your Interior";
